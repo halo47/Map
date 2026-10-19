@@ -1,0 +1,22 @@
+{
+  "id": "/",
+  "name": "WazeKurd 3D — ڕاداری کوردستان",
+  "short_name": "WazeKurd 3D",
+  "description": "سیستەمی ناڤیگەیشنی 3D و ڕاداری کامێراکانی هاتووچۆ بۆ کوردستان و عێراق",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#060911",
+  "theme_color": "#060911",
+  "dir": "rtl",
+  "lang": "ckb",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

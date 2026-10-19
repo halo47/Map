@@ -1,0 +1,10 @@
+{
+  "name": "WazeKurd 3D — ڕاداری کوردستان",
+  "description": "سیستەمی ناڤیگەیشنی سێ ڕەهەندی و ڕاداری کامێراکانی هاتووچۆ بۆ هەرێمی کوردستان و عێراق (3D Automotive Navigation & Speed Camera Radar PWA for Kurdistan Region and Iraq).",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,3513 @@
+<!doctype html>
+<html lang="ckb" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>WazeKurd 3D — ڕاداری کوردستان</title>
+  <meta name="description" content="سیستەمی ناڤیگەیشنی سێ ڕەهەندی و ڕاداری کامێراکانی هاتووچۆ بۆ هەرێمی کوردستان و عێراق (3D Automotive Navigation & Speed Camera Radar PWA for Kurdistan Region and Iraq)." />
+  <meta property="og:title" content="WazeKurd 3D — ڕاداری کوردستان" />
+  <meta property="og:description" content="سیستەمی ناڤیگەیشنی سێ ڕەهەندی و ڕاداری کامێراکانی هاتووچۆ بۆ هەرێمی کوردستان و عێراق." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#060911" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WazeKurd 3D" />
+  <link rel="manifest" href="/manifest.webmanifest" id="pwa-manifest-link" />
+  <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+  <link rel="apple-touch-icon" href="/icon.svg" id="apple-touch-icon-link" />
+
+  <!-- Vazirmatn & JetBrains Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- MapLibre GL JS CSS & Script -->
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" crossorigin="anonymous" />
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Vazirmatn', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            cockpit: {
+              bg: '#060911',
+              navy: '#0B111E',
+              surface: '#121A2A',
+              card: '#172135',
+              border: '#23314B'
+            },
+            brand: {
+              maroon: '#8C1D35',
+              crimson: '#E11D48',
+              cyan: '#06B6D4',
+              violet: '#8B5CF6',
+              safe: '#10B981',
+              warn: '#F59E0B',
+              hazard: '#EF4444'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #060911;
+      color: #F8FAFC;
+      font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .cockpit-glass {
+      background: rgba(11, 17, 30, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+    .cockpit-surface-solid {
+      background: #121A2A;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+    /* MapLibre Attribution & Controls Styling */
+    .maplibregl-ctrl-bottom-left,
+    .maplibregl-ctrl-bottom-right {
+      bottom: 70px !important;
+      z-index: 10 !important;
+    }
+    .maplibregl-ctrl-attrib {
+      background: rgba(6, 9, 17, 0.78) !important;
+      color: #94A3B8 !important;
+      font-size: 10px !important;
+      border-radius: 6px !important;
+      padding: 2px 6px !important;
+      border: 1px solid rgba(148, 163, 184, 0.15) !important;
+    }
+    .maplibregl-ctrl-attrib a {
+      color: #38BDF8 !important;
+    }
+    .maplibregl-popup-content {
+      background: #0B111E !important;
+      color: #F8FAFC !important;
+      border: 1px solid rgba(148, 163, 184, 0.2) !important;
+      border-radius: 14px !important;
+      padding: 12px !important;
+      font-family: 'Vazirmatn', sans-serif !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7) !important;
+    }
+    .maplibregl-popup-tip {
+      border-top-color: #0B111E !important;
+      border-bottom-color: #0B111E !important;
+    }
+    /* Custom Scrollbar for Sheets */
+    .sheet-scroll {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+    }
+    .sheet-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    .sheet-scroll::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.4);
+    }
+    .sheet-scroll::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 9999px;
+    }
+    /* Vehicle Marker */
+    .vehicle-marker-wrap {
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .vehicle-marker-inner {
+      width: 44px;
+      height: 44px;
+      transition: transform 0.15s linear;
+      will-change: transform;
+      filter: drop-shadow(0 6px 14px rgba(6, 182, 212, 0.45));
+    }
+    /* Report button subtle pulse */
+    @keyframes reportRing {
+      0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.45); }
+      70% { box-shadow: 0 0 0 10px rgba(225, 29, 72, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+    }
+    .report-btn-glow {
+      animation: reportRing 2.6s infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .report-btn-glow, .vehicle-marker-inner {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-cockpit-bg text-slate-100 select-none overflow-hidden">
+
+  <!-- 1. FULL-SCREEN 3D MAP VIEWPORT -->
+  <main id="map" class="fixed inset-0 z-0 w-full h-full bg-cockpit-bg" aria-label="نەخشەی سێ ڕەهەندی کوردستان"></main>
+
+  <!-- MAP INITIALIZATION LOADER -->
+  <div id="map-loader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-cockpit-bg/95 transition-opacity duration-300">
+    <div class="w-16 h-16 rounded-2xl bg-cockpit-surface border border-slate-800 flex items-center justify-center shadow-2xl mb-4">
+      <svg class="w-9 h-9 text-brand-cyan animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h1 class="text-lg font-bold tracking-tight text-white">WazeKurd 3D — ڕاداری کوردستان</h1>
+    <p id="map-loader-text" class="text-xs text-slate-400 mt-1">ئامادەکردنی بزوێنەری نەخشەی 3D و کامێراکان...</p>
+  </div>
+
+  <!-- 2. TOP COCKPIT HUD (Search, Permission Action, Active Turn-by-Turn Banner) -->
+  <header class="fixed top-0 inset-x-0 z-20 pointer-events-none px-3 pt-2.5 flex flex-col gap-2 max-w-5xl mx-auto">
+
+    <!-- Offline / Network Warning Banner -->
+    <div id="offline-banner" class="hidden pointer-events-auto cockpit-glass rounded-xl px-3.5 py-2 border-amber-500/40 bg-amber-950/80 text-amber-200 text-xs flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span data-i18n="offline_notice">ئینتەرنێت پچڕاوە — داتای پاشەکەوتکراو (Cache) بەکاردێت.</span>
+      </div>
+      <span class="font-mono text-[11px] text-amber-300">OFFLINE</span>
+    </div>
+
+    <!-- Map Tile / Provider Error Banner -->
+    <div id="map-error-banner" class="hidden pointer-events-auto cockpit-glass rounded-xl px-3.5 py-2 border-red-500/40 bg-red-950/85 text-red-200 text-xs flex items-center justify-between gap-2">
+      <span id="map-error-msg">کێشە لە بارکردنی تایلەکانی نەخشە ڕوویدا.</span>
+      <button id="btn-retry-map" class="px-2.5 py-1 rounded-lg bg-red-800/70 hover:bg-red-700 text-white font-medium text-xs min-h-[32px]">دووبارە هەوڵدانەوە</button>
+    </div>
+
+    <!-- Top Search & GPS Bar -->
+    <div id="top-search-row" class="pointer-events-auto flex items-center gap-2">
+      <!-- Brand + GPS Status Button -->
+      <button id="btn-gps-status" type="button" class="cockpit-glass min-h-[46px] px-3 rounded-2xl flex items-center gap-2 hover:border-slate-600 transition shrink-0" title="دۆخی GPS و مۆڵەتی شوێن">
+        <span id="gps-indicator-icon" class="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
+        <div class="text-right leading-tight">
+          <div class="text-[11px] font-bold text-white whitespace-nowrap">WazeKurd 3D</div>
+          <div id="gps-status-short" class="text-[10px] text-slate-300 whitespace-nowrap tabular-nums">هەولێر (بنەڕەتی)</div>
+        </div>
+      </button>
+
+      <!-- Prominent Search Input Bar -->
+      <div class="relative flex-1">
+        <form id="search-form" class="cockpit-glass rounded-2xl flex items-center min-h-[46px] px-3 focus-within:border-brand-cyan transition">
+          <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+          </svg>
+          <input
+            id="search-input"
+            type="search"
+            autocomplete="off"
+            placeholder="بۆ کوێ دەچیت؟"
+            data-i18n-placeholder="search_placeholder"
+            class="w-full bg-transparent border-none outline-none px-2.5 text-sm text-white placeholder-slate-400"
+          />
+          <div id="search-spinner" class="hidden w-4 h-4 border-2 border-brand-cyan border-t-transparent rounded-full animate-spin shrink-0 mx-1"></div>
+          <button id="btn-clear-search" type="button" class="hidden p-1.5 text-slate-400 hover:text-white" aria-label="سڕینەوە">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- Quick PWA Install Button (Shown when installable or iOS) -->
+      <button id="btn-pwa-install-top" type="button" class="hidden cockpit-glass min-h-[46px] px-3 rounded-2xl items-center gap-1.5 text-xs font-semibold text-brand-cyan hover:bg-slate-800/80 transition shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        <span data-i18n="install_app">دامەزراندن</span>
+      </button>
+    </div>
+
+    <!-- Prominent GPS Permission Call-To-Action Strip -->
+    <div id="gps-permission-bar" class="pointer-events-auto cockpit-glass rounded-2xl px-3.5 py-2 flex items-center justify-between gap-2 border-brand-cyan/30">
+      <div class="flex items-center gap-2 min-w-0">
+        <svg class="w-4 h-4 text-brand-cyan shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <p id="gps-permission-text" class="text-xs text-slate-200 truncate" data-i18n="gps_prompt_msg">
+          نەخشە لەسەر هەولێر جێگیرکراوە. بۆ دیاریکردنی شوێنی ڕاستەقینەت GPS چالاک بکە.
+        </p>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button id="btn-enable-gps" type="button" class="px-3 py-1.5 rounded-xl bg-brand-cyan text-slate-950 font-bold text-xs hover:bg-cyan-300 transition min-h-[34px] whitespace-nowrap" data-i18n="enable_gps_btn">
+          چالاککردنی GPS
+        </button>
+        <button id="btn-hide-gps-bar" type="button" class="p-1.5 text-slate-400 hover:text-white" aria-label="داخستن">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- TURN-BY-TURN TOP NAVIGATION BANNER (Shown when navigation or route simulation is active) -->
+    <div id="nav-maneuver-banner" class="hidden pointer-events-auto cockpit-glass rounded-2xl p-3.5 border-brand-cyan/40 shadow-2xl">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <!-- Direction Icon Box -->
+          <div id="nav-maneuver-icon" class="w-12 h-12 rounded-2xl bg-brand-cyan/15 border border-brand-cyan/40 flex items-center justify-center text-brand-cyan shrink-0">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-baseline gap-2">
+              <span id="nav-next-dist" class="text-xl font-extrabold text-white tabular-nums">0 m</span>
+              <span id="nav-street-name" class="text-xs font-semibold text-brand-cyan truncate">شەقامی سەرەکی</span>
+            </div>
+            <p id="nav-instruction-text" class="text-sm font-medium text-slate-100 truncate mt-0.5">بەردەوام بە لەسەر ڕێگاکە</p>
+          </div>
+        </div>
+        <!-- Remaining Summary -->
+        <div class="text-left shrink-0 border-r border-slate-800 pr-3">
+          <div id="nav-eta-time" class="text-sm font-bold text-emerald-400 tabular-nums">--:--</div>
+          <div id="nav-rem-dist" class="text-xs text-slate-300 tabular-nums">0.0 km</div>
+          <div id="nav-mode-tag" class="text-[10px] text-slate-400">OSRM ستاندارد</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROXIMITY RADAR ALERT CARD (Within 700m) -->
+    <div id="radar-alert-card" class="hidden pointer-events-auto cockpit-glass rounded-2xl p-3 border-red-500/60 bg-gradient-to-l from-red-950/90 via-cockpit-navy/95 to-cockpit-navy/95 shadow-2xl">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-12 h-12 rounded-2xl bg-red-600/20 border border-red-500 flex flex-col items-center justify-center shrink-0">
+            <span id="radar-alert-speed-limit" class="text-sm font-extrabold text-white tabular-nums">--</span>
+            <span class="text-[9px] text-red-200">km/h</span>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <span id="radar-alert-lifecycle" class="text-[11px] font-bold text-amber-300">نزیکبوونەوە</span>
+              <span class="text-slate-500">·</span>
+              <span id="radar-alert-source" class="text-[11px] text-slate-300">OSM</span>
+            </div>
+            <h3 id="radar-alert-title" class="text-sm font-bold text-white truncate">کامێرای جێگیر لە پێشەوەیە</h3>
+            <div class="flex items-center gap-2 mt-1">
+              <span id="radar-alert-dist" class="text-base font-extrabold text-red-400 tabular-nums">450 مەتر</span>
+              <div class="w-28 h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div id="radar-alert-bar" class="h-full bg-gradient-to-l from-red-500 to-amber-400 transition-all duration-200" style="width: 50%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button id="btn-dismiss-radar" type="button" class="min-w-[44px] min-h-[44px] rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 flex items-center justify-center text-xs font-semibold px-2.5 shrink-0" data-i18n="dismiss_btn">
+          داخستن
+        </button>
+      </div>
+    </div>
+
+    <!-- COMMUNITY REPORT CONFIRMATION CARD ("هێشتا لێرەیە؟") -->
+    <div id="community-confirm-card" class="hidden pointer-events-auto cockpit-glass rounded-2xl p-3 border-amber-500/40 shadow-xl">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-amber-300">هێشتا لێرەیە؟</span>
+          <span class="text-slate-500">·</span>
+          <span id="confirm-report-label" class="text-xs text-white font-medium">کامێرای گەڕۆک</span>
+          <span class="text-slate-500">·</span>
+          <span id="confirm-report-votes" class="text-[11px] text-slate-400 tabular-nums">پشتڕاستکردنەوەی ناوخۆیی: 0</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-vote-yes" type="button" class="min-h-[38px] px-3 rounded-xl bg-emerald-600/25 border border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-200 text-xs font-bold transition">
+            👍 بەڵێ
+          </button>
+          <button id="btn-vote-no" type="button" class="min-h-[38px] px-3 rounded-xl bg-rose-600/25 border border-rose-500/50 hover:bg-rose-600/40 text-rose-200 text-xs font-bold transition">
+            👎 نەماوە
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- POINT-TO-POINT AVERAGE SPEED ACTIVE HUD -->
+    <div id="p2p-active-hud" class="hidden pointer-events-auto cockpit-glass rounded-2xl p-3 border-violet-500/50 shadow-xl">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-violet-300">کامێرای خاڵ بۆ خاڵ (تێکڕای خێرایی)</span>
+          <span class="text-slate-500">·</span>
+          <span id="p2p-hud-status" class="text-[11px] text-emerald-300">لە پێوانەدایە</span>
+        </div>
+        <button id="btn-p2p-stop-hud" type="button" class="text-xs text-rose-300 hover:text-rose-200 px-2 py-0.5 rounded bg-rose-950/60 border border-rose-700/40">وەستاندن</button>
+      </div>
+      <div class="grid grid-cols-4 gap-2 text-center bg-slate-900/70 rounded-xl p-2 border border-slate-800/80">
+        <div>
+          <div class="text-[10px] text-slate-400">تێکڕای خێرایی</div>
+          <div id="p2p-hud-avg" class="text-base font-extrabold text-brand-cyan tabular-nums">0 km/h</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-400">خێرایی ئێستا</div>
+          <div id="p2p-hud-cur" class="text-base font-bold text-white tabular-nums">-- km/h</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-400">دووری ماوە</div>
+          <div id="p2p-hud-rem" class="text-base font-bold text-slate-200 tabular-nums">0.00 km</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-400">سنووری پشتڕاستکراو</div>
+          <div id="p2p-hud-limit" class="text-base font-bold text-amber-300 tabular-nums">--</div>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- 3. FLOATING COCKPIT CONTROLS (Right & Left Rails) -->
+  <!-- Right Floating Controls: 3D Follow, Simulator, Compass, Recenter, Zoom, Style, Voice -->
+  <aside class="fixed right-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-2 pointer-events-auto">
+    <!-- 3D Follow Button ("شوێنکەوتنی 3D") -->
+    <button id="btn-3d-follow" type="button" class="cockpit-glass min-w-[46px] min-h-[46px] px-2.5 rounded-2xl flex flex-col items-center justify-center gap-0.5 text-brand-cyan border-brand-cyan/50 shadow-lg hover:bg-slate-800/80 transition" title="شوێنکەوتنی 3D">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+      <span class="text-[9px] font-bold whitespace-nowrap">شوێنکەوتنی 3D</span>
+    </button>
+
+    <!-- Recenter Button -->
+    <button id="btn-recenter" type="button" class="cockpit-glass w-[46px] h-[46px] rounded-2xl flex items-center justify-center text-slate-200 hover:text-white hover:bg-slate-800/80 transition" title="گەڕانەوە بۆ شوێنی خۆم" aria-label="گەڕانەوە بۆ شوێنی خۆم">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3" stroke-width="2"/>
+        <path stroke-linecap="round" stroke-width="2" d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+      </svg>
+    </button>
+
+    <!-- Compass / North-Up Button -->
+    <button id="btn-compass" type="button" class="cockpit-glass w-[46px] h-[46px] rounded-2xl flex flex-col items-center justify-center text-slate-200 hover:text-white hover:bg-slate-800/80 transition" title="باکوور / ڕێکخستنەوەی ئاڕاستە" aria-label="باکوور">
+      <svg id="compass-svg" class="w-5 h-5 transition-transform duration-150" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3L16 12H8L12 3Z" fill="#EF4444"/>
+        <path d="M12 21L8 12H16L12 21Z" fill="#94A3B8"/>
+      </svg>
+      <span class="text-[9px] font-mono text-slate-400">N</span>
+    </button>
+
+    <!-- Map Style Switcher Button -->
+    <button id="btn-style-cycle" type="button" class="cockpit-glass min-w-[46px] min-h-[46px] px-2 rounded-2xl flex flex-col items-center justify-center gap-0.5 text-slate-200 hover:text-white hover:bg-slate-800/80 transition" title="گۆڕینی شێوازی نەخشە">
+      <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.382V5.618a2 2 0 011.447-1.894L9 2m0 18l6-3m-6 3V2m6 15l5.447 2.724A2 2 0 0021 17.882V8.118a2 2 0 00-1.447-1.894L15 4m0 13V4m0 0L9 2"/></svg>
+      <span id="style-short-label" class="text-[9px] font-semibold">3D تاریک</span>
+    </button>
+
+    <!-- Voice Mute / Unmute Toggle -->
+    <button id="btn-voice-toggle" type="button" class="cockpit-glass w-[46px] h-[46px] rounded-2xl flex items-center justify-center text-emerald-400 hover:bg-slate-800/80 transition" title="دەنگی ڕێنمایی و ئاگادارکردنەوە" aria-label="دەنگ">
+      <svg id="icon-voice-on" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+      <svg id="icon-voice-off" class="w-5 h-5 hidden text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+    </button>
+
+    <!-- Zoom Controls (+ / -) -->
+    <div class="cockpit-glass rounded-2xl flex flex-col overflow-hidden">
+      <button id="btn-zoom-in" type="button" class="w-[46px] h-[42px] flex items-center justify-center text-slate-200 hover:bg-slate-800/80 border-b border-slate-800 text-lg font-bold" aria-label="نزیککردنەوە">+</button>
+      <button id="btn-zoom-out" type="button" class="w-[46px] h-[42px] flex items-center justify-center text-slate-200 hover:bg-slate-800/80 text-lg font-bold" aria-label="دوورخستنەوە">−</button>
+    </div>
+  </aside>
+
+  <!-- Left Floating Controls: Speedometer Cluster, Drive Simulator Button, & Report Button -->
+  <aside class="fixed left-3 bottom-24 z-20 flex flex-col items-start gap-2.5 pointer-events-auto">
+    <!-- Speedometer Cockpit Instrument -->
+    <div class="cockpit-glass rounded-2xl p-2.5 min-w-[92px] text-center shadow-xl border-slate-700/60">
+      <div id="speed-source-badge" class="text-[9px] font-bold text-slate-400 tracking-wide">GPS ڕاستەقینە</div>
+      <div id="speed-value" class="text-3xl font-extrabold text-white tabular-nums leading-none my-1">--</div>
+      <div class="text-[10px] text-slate-400 font-mono">km/h</div>
+      <div id="heading-accuracy-readout" class="text-[9px] text-slate-400 mt-1 border-t border-slate-800 pt-1 tabular-nums">وردی: --m</div>
+    </div>
+
+    <!-- Drive Simulator Button ("لێخوڕینی تاقیکاری") -->
+    <button id="btn-open-simulator" type="button" class="cockpit-glass min-h-[44px] px-3 rounded-2xl flex items-center gap-2 text-xs font-bold text-amber-300 border-amber-500/40 hover:bg-slate-800/90 transition shadow-lg">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span>لێخوڕینی تاقیکاری</span>
+    </button>
+
+    <!-- Animated Community Report Button ("ڕاپۆرت") -->
+    <button id="btn-floating-report" type="button" class="report-btn-glow min-h-[48px] px-4 rounded-2xl bg-gradient-to-l from-brand-crimson to-brand-maroon text-white font-bold text-sm flex items-center gap-2 shadow-xl active:scale-95 transition">
+      <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <span>ڕاپۆرت</span>
+    </button>
+  </aside>
+
+  <!-- 4. PERSISTENT MAP STYLE SELECTOR POPOVER -->
+  <div id="style-selector-modal" class="hidden fixed right-16 top-1/2 -translate-y-1/2 z-30 cockpit-glass rounded-2xl p-3 w-64 shadow-2xl border-slate-700">
+    <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-800">
+      <span class="text-xs font-bold text-white" data-i18n="map_styles_title">شێوازی نەخشە هەڵبژێرە</span>
+      <button id="btn-close-style-modal" type="button" class="text-slate-400 hover:text-white p-1">✕</button>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <button type="button" data-style-id="dark3d" class="style-opt-btn min-h-[44px] px-3 py-2 rounded-xl text-right flex items-center justify-between bg-brand-cyan/15 border border-brand-cyan/50 text-white text-xs font-semibold">
+        <span>1. کۆکپیتی تاریکی 3D</span>
+        <span class="text-[10px] text-brand-cyan">چالاک</span>
+      </button>
+      <button type="button" data-style-id="day" class="style-opt-btn min-h-[44px] px-3 py-2 rounded-xl text-right flex items-center justify-between bg-slate-900/70 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-semibold">
+        <span>2. ناڤیگەیشنی ڕۆژی ڕووناک</span>
+        <span class="text-[10px] text-slate-400">ڕۆژ</span>
+      </button>
+      <button type="button" data-style-id="satellite" class="style-opt-btn min-h-[44px] px-3 py-2 rounded-xl text-right flex items-center justify-between bg-slate-900/70 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-semibold">
+        <span>3. سەتەلایتی تێکەڵ (Esri)</span>
+        <span class="text-[10px] text-slate-400">سەتەلایت</span>
+      </button>
+      <button type="button" data-style-id="traffic" class="style-opt-btn min-h-[44px] px-3 py-2 rounded-xl text-right flex items-center justify-between bg-slate-900/70 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-semibold">
+        <span>4. دیمەنی هاتووچۆ (Traffic)</span>
+        <span class="text-[10px] text-amber-400">DEMO / پڕۆڤایدەر</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 5. DRIVE SIMULATOR FLOATING CONTROL DECK ("لێخوڕینی تاقیکاری") -->
+  <section id="simulator-deck" class="hidden fixed bottom-20 inset-x-3 z-30 max-w-xl mx-auto cockpit-glass rounded-2xl p-3.5 border-amber-500/50 shadow-2xl">
+    <div class="flex items-center justify-between gap-2 mb-2">
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] font-bold">SIMULATOR DEMO</span>
+        <h3 class="text-xs font-bold text-white">لێخوڕینی تاقیکاری (GPS ڕاستەقینە نییە)</h3>
+      </div>
+      <button id="btn-sim-exit" type="button" class="min-h-[34px] px-2.5 rounded-xl bg-rose-600/25 border border-rose-500/50 text-rose-200 text-xs font-semibold hover:bg-rose-600/40">
+        چوونەدەرەوە
+      </button>
+    </div>
+
+    <!-- Preset Route Selector for Simulator -->
+    <div class="flex items-center gap-2 mb-2.5">
+      <label for="sim-route-select" class="text-[11px] text-slate-300 shrink-0">ڕێڕەو:</label>
+      <select id="sim-route-select" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none">
+        <option value="erbil_120m">هەولێر: قەڵای هەولێر ← شەقامی ١٠٠م و ١٢٠م ← عەنکاوە</option>
+        <option value="erbil_shaqlawa">هەولێر ← پیرمام ← شەقڵاوە</option>
+        <option value="suli_dukan">سلێمانی: ناوەند ← تاسڵوجە ← دوکان</option>
+        <option value="active_route">ڕێڕەوی هەڵبژێردراوی ئێستا (OSRM)</option>
+      </select>
+    </div>
+
+    <!-- Speed Slider (0 to 160 km/h) & Elapsed Readout -->
+    <div class="flex items-center gap-3 mb-2.5 bg-slate-900/70 rounded-xl p-2 border border-slate-800">
+      <div class="text-right shrink-0">
+        <div class="text-[10px] text-slate-400">خێرایی تاقیکاری</div>
+        <div id="sim-speed-label" class="text-sm font-extrabold text-amber-300 tabular-nums">80 km/h</div>
+      </div>
+      <input id="sim-speed-slider" type="range" min="0" max="160" step="5" value="80" class="flex-1 accent-amber-400 cursor-pointer" />
+      <div class="text-left shrink-0">
+        <div class="text-[10px] text-slate-400">کاتی تێپەڕبوو</div>
+        <div id="sim-elapsed-label" class="text-xs font-mono text-slate-200 tabular-nums">00:00</div>
+      </div>
+    </div>
+
+    <!-- Controls: Pause/Resume, Restart -->
+    <div class="flex items-center gap-2">
+      <button id="btn-sim-pause" type="button" class="flex-1 min-h-[40px] rounded-xl bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition">
+        وەستاندنی کاتی (Pause)
+      </button>
+      <button id="btn-sim-restart" type="button" class="min-h-[40px] px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition">
+        سەرلەنوێ (Restart)
+      </button>
+    </div>
+  </section>
+
+  <!-- 6. PRE-NAVIGATION / ACTIVE ROUTE OVERVIEW CARD -->
+  <section id="route-overview-card" class="hidden fixed bottom-20 inset-x-3 z-25 max-w-xl mx-auto cockpit-glass rounded-2xl p-3.5 border-brand-cyan/40 shadow-2xl">
+    <div class="flex items-start justify-between gap-2 mb-2">
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-brand-cyan">پوختەی ڕێگا (OSRM)</span>
+          <span class="text-slate-500">·</span>
+          <span class="text-[11px] text-amber-300">خەمڵاندنی ئاسایی (بێ هاتووچۆی ڕاستەوخۆ)</span>
+        </div>
+        <h3 id="route-dest-title" class="text-sm font-bold text-white truncate mt-0.5">مەبەست</h3>
+      </div>
+      <button id="btn-close-route-card" type="button" class="p-1.5 text-slate-400 hover:text-white">✕</button>
+    </div>
+
+    <!-- Alternative Routes Tabs (populated dynamically if OSRM returns > 1 route) -->
+    <div id="route-alternatives-bar" class="hidden flex items-center gap-1.5 mb-2.5 overflow-x-auto pb-1"></div>
+
+    <!-- Route Metrics -->
+    <div class="grid grid-cols-3 gap-2 bg-slate-900/75 rounded-xl p-2.5 border border-slate-800 mb-3 text-center">
+      <div>
+        <div class="text-[10px] text-slate-400">کاتی گەشت</div>
+        <div id="route-metric-duration" class="text-base font-extrabold text-emerald-400 tabular-nums">-- خولەک</div>
+      </div>
+      <div>
+        <div class="text-[10px] text-slate-400">دووری گشتی</div>
+        <div id="route-metric-distance" class="text-base font-extrabold text-white tabular-nums">-- km</div>
+      </div>
+      <div>
+        <div class="text-[10px] text-slate-400">کاتی گەیشتن</div>
+        <div id="route-metric-eta" class="text-base font-bold text-brand-cyan tabular-nums">--:--</div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-2">
+      <button id="btn-start-navigation" type="button" class="flex-1 min-h-[44px] rounded-xl bg-brand-cyan text-slate-950 font-extrabold text-xs hover:bg-cyan-300 transition flex items-center justify-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+        <span>دەستپێکردنی ڕێنمایی</span>
+      </button>
+      <button id="btn-sim-this-route" type="button" class="min-h-[44px] px-3 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-bold text-xs hover:bg-amber-500/30 transition">
+        تاقیکاری
+      </button>
+      <button id="btn-stop-navigation" type="button" class="hidden min-h-[44px] px-4 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-500 transition">
+        وەستاندن
+      </button>
+    </div>
+  </section>
+
+  <!-- 7. MODALS & BOTTOM SHEETS FOR NAVIGATION SECTIONS -->
+
+  <!-- SHEET A: SEARCH & QUICK DESTINATIONS ("گەڕان") -->
+  <section id="sheet-search" class="hidden fixed inset-x-0 bottom-16 z-30 max-w-2xl mx-auto cockpit-glass rounded-t-3xl p-4 border-t border-slate-700 max-h-[76vh] flex flex-col shadow-2xl">
+    <div class="w-10 h-1.5 bg-slate-700 rounded-full mx-auto mb-3 shrink-0"></div>
+    <div class="flex items-center justify-between mb-3 shrink-0">
+      <h2 class="text-base font-bold text-white" data-i18n="search_sheet_title">گەڕان لە کوردستان و عێراق</h2>
+      <button type="button" data-close-sheet="sheet-search" class="min-w-[40px] min-h-[40px] rounded-xl bg-slate-800/80 text-slate-300 hover:text-white flex items-center justify-center">✕</button>
+    </div>
+
+    <!-- Quick Categories -->
+    <div class="mb-3 shrink-0">
+      <div class="text-xs text-slate-400 mb-1.5" data-i18n="quick_categories">هاوپۆلە خێراکان و شارە سەرەکییەکان:</div>
+      <div class="flex flex-wrap gap-1.5">
+        <button type="button" data-quick-query="Erbil Citadel" class="quick-cat-btn min-h-[36px] px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs text-slate-100 font-medium">🏰 هەولێر (قەڵا)</button>
+        <button type="button" data-quick-query="Sulaymaniyah" class="quick-cat-btn min-h-[36px] px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs text-slate-100 font-medium">🏔️ سلێمانی</button>
+        <button type="button" data-quick-query="Duhok" class="quick-cat-btn min-h-[36px] px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs text-slate-100 font-medium">🌲 دهۆک</button>
+        <button type="button" data-quick-query="Halabja" class="quick-cat-btn min-h-[36px] px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs text-slate-100 font-medium">🕊️ هەڵەبجە</button>
+        <button type="button" data-quick-query="Kirkuk" class="quick-cat-btn min-h-[36px] px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs text-slate-100 font-medium">🔥 کەرکووک</button>
+        <button type="button" data-quick-query="fuel station Erbil" class="quick-cat-btn min-h-[36px] px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs text-amber-300 font-medium">⛽ بەنزینخانە</button>
+        <button type="button" data-quick-query="hospital Erbil" class="quick-cat-btn min-h-[36px] px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs text-rose-300 font-medium">🏥 نەخۆشخانە</button>
+        <button type="button" data-quick-query="Erbil International Airport" class="quick-cat-btn min-h-[36px] px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs text-cyan-300 font-medium">✈️ فڕۆکەخانە</button>
+        <button type="button" data-quick-query="Shaqlawa" class="quick-cat-btn min-h-[36px] px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs text-emerald-300 font-medium">🏞️ شەقڵاوە و سەیرانگا</button>
+      </div>
+    </div>
+
+    <!-- Direct Coordinate Input Helper -->
+    <div class="mb-3 bg-slate-900/70 rounded-2xl p-2.5 border border-slate-800 shrink-0">
+      <div class="flex items-center justify-between gap-2">
+        <input id="coord-input" type="text" dir="ltr" placeholder="36.1911, 44.0092" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-white outline-none" />
+        <button id="btn-go-coords" type="button" class="min-h-[36px] px-3 rounded-xl bg-brand-cyan/20 border border-brand-cyan/50 text-brand-cyan text-xs font-bold hover:bg-brand-cyan/30">
+          بڕۆ بۆ پۆتان (Lat, Lng)
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Results & Recent List -->
+    <div id="search-results-container" class="sheet-scroll flex-1 divide-y divide-slate-800/80">
+      <div class="py-6 text-center text-xs text-slate-400">ناوی شوێن، شەقام، یان پۆتان بنووسە لە خانەی گەڕانی سەرەوە.</div>
+    </div>
+  </section>
+
+  <!-- SHEET B: RADAR, CAMERA DATABASE & POINT-TO-POINT MODE ("ڕادار") -->
+  <section id="sheet-radar" class="hidden fixed inset-x-0 bottom-16 z-30 max-w-2xl mx-auto cockpit-glass rounded-t-3xl p-4 border-t border-slate-700 max-h-[78vh] flex flex-col shadow-2xl">
+    <div class="w-10 h-1.5 bg-slate-700 rounded-full mx-auto mb-3 shrink-0"></div>
+    <div class="flex items-center justify-between mb-3 shrink-0">
+      <div>
+        <h2 class="text-base font-bold text-white">بنکەی زانیاری ڕادار و کامێراکان</h2>
+        <p class="text-[11px] text-slate-400">جیاکردنەوەی سەرچاوەکانی OpenStreetMap، کۆمەڵگە، و تاقیکاری</p>
+      </div>
+      <button type="button" data-close-sheet="sheet-radar" class="min-w-[40px] min-h-[40px] rounded-xl bg-slate-800/80 text-slate-300 hover:text-white flex items-center justify-center">✕</button>
+    </div>
+
+    <!-- Sub-Tabs inside Radar Sheet: 1. Camera Database, 2. Point-to-Point Average Speed -->
+    <div class="flex items-center gap-1.5 p-1 bg-slate-900 rounded-2xl mb-3 shrink-0 border border-slate-800">
+      <button id="tab-radar-list" type="button" class="flex-1 min-h-[38px] rounded-xl bg-brand-cyan text-slate-950 font-bold text-xs transition">
+        لیستی کامێراکان و Overpass
+      </button>
+      <button id="tab-radar-p2p" type="button" class="flex-1 min-h-[38px] rounded-xl text-slate-300 hover:text-white font-semibold text-xs transition">
+        دۆخی خاڵ بۆ خاڵ (Point-to-Point)
+      </button>
+    </div>
+
+    <!-- Radar Subview 1: Camera Database & Live Overpass Query -->
+    <div id="radar-subview-list" class="flex-1 flex flex-col min-h-0">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3 bg-slate-900/75 p-2.5 rounded-2xl border border-slate-800 shrink-0">
+        <div class="text-xs">
+          <span class="text-slate-400">بارودۆخی Overpass API:</span>
+          <span id="overpass-status-label" class="font-bold text-emerald-400 mr-1">ئامادەیە</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-fetch-osm-cameras" type="button" class="min-h-[36px] px-3 rounded-xl bg-brand-cyan/20 border border-brand-cyan/50 text-brand-cyan text-xs font-bold hover:bg-brand-cyan/30 transition">
+            نوێکردنەوە لە OpenStreetMap
+          </button>
+          <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer">
+            <input id="chk-show-demo-cameras" type="checkbox" checked class="accent-amber-400 w-4 h-4" />
+            <span>پیشاندانی تۆماری DEMO</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Camera List Container -->
+      <div id="camera-db-list" class="sheet-scroll flex-1 divide-y divide-slate-800/80"></div>
+    </div>
+
+    <!-- Radar Subview 2: Point-to-Point Average Speed Calculator -->
+    <div id="radar-subview-p2p" class="hidden sheet-scroll flex-1 space-y-3">
+      <div class="bg-slate-900/80 rounded-2xl p-3.5 border border-slate-800">
+        <h3 class="text-sm font-bold text-white mb-1">پێوانەی تێکڕای خێرایی (کامێرای خاڵ بۆ خاڵ)</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          یاسای هەژمارکردن بە شەفافی: <span class="font-mono text-brand-cyan">Average Speed = Distance / Elapsed Time</span>.
+          ئەم سیستەمە پۆتانی ڕاستەقینەی GPS بەکاردەهێنێت یان ڕێگەت دەدات دۆخی تاقیکاری (Simulation) بەکاربهێنیت بەبێ دروستکردنی شوێنی ساختە وەک داتای فەرمی.
+        </p>
+
+        <div class="grid grid-cols-2 gap-2.5 my-3">
+          <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+            <div class="text-[11px] text-slate-400">خاڵی دەستپێک (Start Portal)</div>
+            <div id="p2p-start-label" class="text-xs font-mono text-white mt-0.5 truncate">دیاری نەکراوە</div>
+          </div>
+          <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+            <div class="text-[11px] text-slate-400">خاڵی کۆتایی (End Portal)</div>
+            <div id="p2p-end-label" class="text-xs font-mono text-white mt-0.5 truncate">دیاری نەکراوە</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 my-3 text-center">
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <div class="text-[10px] text-slate-400">دووری بڕاو</div>
+            <div id="p2p-panel-dist" class="text-sm font-bold text-white tabular-nums">0.00 km</div>
+          </div>
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <div class="text-[10px] text-slate-400">کاتی تێپەڕبوو</div>
+            <div id="p2p-panel-time" class="text-sm font-bold text-white tabular-nums">00:00</div>
+          </div>
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <div class="text-[10px] text-slate-400">تێکڕای خێرایی</div>
+            <div id="p2p-panel-avg" class="text-sm font-extrabold text-brand-cyan tabular-nums">0.0 km/h</div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button id="btn-p2p-set-start" type="button" class="flex-1 min-h-[42px] px-3 rounded-xl bg-emerald-600/25 border border-emerald-500/50 text-emerald-200 text-xs font-bold hover:bg-emerald-600/35">
+            ١. دیاریکردنی دەستپێک بە GPS
+          </button>
+          <button id="btn-p2p-set-end" type="button" class="flex-1 min-h-[42px] px-3 rounded-xl bg-brand-cyan/25 border border-brand-cyan/50 text-brand-cyan text-xs font-bold hover:bg-brand-cyan/35">
+            ٢. دیاریکردنی کۆتایی لەسەر نەخشە
+          </button>
+        </div>
+
+        <div class="mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between gap-2">
+          <button id="btn-p2p-sim-demo" type="button" class="flex-1 min-h-[42px] px-3 rounded-xl bg-violet-600/25 border border-violet-500/50 text-violet-200 text-xs font-bold hover:bg-violet-600/35">
+            دەستپێکردنی تاقیکاری خاڵ بۆ خاڵ (DEMO Simulation)
+          </button>
+          <button id="btn-p2p-reset" type="button" class="min-h-[42px] px-3 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700">
+            سفرکردنەوە
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHEET C: REPORT DRAWER & COMMUNITY CONTRIBUTIONS ("ڕاپۆرت") -->
+  <section id="sheet-report" class="hidden fixed inset-x-0 bottom-16 z-30 max-w-2xl mx-auto cockpit-glass rounded-t-3xl p-4 border-t border-slate-700 max-h-[80vh] flex flex-col shadow-2xl">
+    <div class="w-10 h-1.5 bg-slate-700 rounded-full mx-auto mb-3 shrink-0"></div>
+    <div class="flex items-center justify-between mb-2 shrink-0">
+      <div>
+        <h2 class="text-base font-bold text-white">ناردنی ڕاپۆرتی ڕێگاوبان</h2>
+        <p class="text-[11px] text-amber-300">تۆماری ناوخۆیی (Unsynchronized Local Prototype) — پێویستی بە سێرڤەرە بۆ هاوبەشکردنی گشتی</p>
+      </div>
+      <button type="button" data-close-sheet="sheet-report" class="min-w-[40px] min-h-[40px] rounded-xl bg-slate-800/80 text-slate-300 hover:text-white flex items-center justify-center">✕</button>
+    </div>
+
+    <div class="sheet-scroll flex-1 space-y-3">
+      <!-- Location Review Box -->
+      <div class="bg-slate-900/80 rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-2">
+        <div>
+          <div class="text-[11px] text-slate-400">شوێنی ڕاپۆرت (پێداچوونەوە پێش ناردن):</div>
+          <div id="report-coords-preview" class="text-xs font-mono text-brand-cyan mt-0.5 tabular-nums">36.19110, 44.00920</div>
+          <div id="report-loc-source" class="text-[10px] text-slate-400">سەرچاوە: ناوەندی نەخشە / GPS</div>
+        </div>
+        <button id="btn-report-use-gps" type="button" class="min-h-[38px] px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white">
+          بەکارهێنانی GPSی ئێستا
+        </button>
+      </div>
+
+      <!-- 11 Required Report Categories Grid -->
+      <div id="report-categories-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <!-- Populated cleanly via JS with all 11 required Kurdish categories -->
+      </div>
+
+      <!-- Optional Note / Speed Limit Input -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <input id="report-note-input" type="text" placeholder="تێبینی زیادە (ئارەزوومەندانە)..." class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white outline-none" />
+        <input id="report-speed-input" type="number" min="20" max="140" step="10" placeholder="سنووری خێرایی km/h (ئەگەر دڵنیایت)" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white outline-none tabular-nums" />
+      </div>
+
+      <div id="report-feedback-msg" class="hidden rounded-xl p-2.5 text-xs font-semibold"></div>
+
+      <button id="btn-submit-report" type="button" class="w-full min-h-[46px] rounded-2xl bg-gradient-to-l from-brand-crimson to-brand-maroon text-white font-extrabold text-sm shadow-lg hover:opacity-95 transition">
+        تۆمارکردنی ڕاپۆرت لەسەر نەخشە
+      </button>
+    </div>
+  </section>
+
+  <!-- SHEET D: SETTINGS, PROVIDER DIAGNOSTICS & PWA ("ڕێکخستن") -->
+  <section id="sheet-settings" class="hidden fixed inset-x-0 bottom-16 z-30 max-w-2xl mx-auto cockpit-glass rounded-t-3xl p-4 border-t border-slate-700 max-h-[82vh] flex flex-col shadow-2xl">
+    <div class="w-10 h-1.5 bg-slate-700 rounded-full mx-auto mb-3 shrink-0"></div>
+    <div class="flex items-center justify-between mb-3 shrink-0">
+      <h2 class="text-base font-bold text-white" data-i18n="settings_title">ڕێکخستنەکان و دۆخی دابینکەران</h2>
+      <button type="button" data-close-sheet="sheet-settings" class="min-w-[40px] min-h-[40px] rounded-xl bg-slate-800/80 text-slate-300 hover:text-white flex items-center justify-center">✕</button>
+    </div>
+
+    <div class="sheet-scroll flex-1 space-y-4 text-xs">
+      <!-- Language & Map Style -->
+      <div class="bg-slate-900/75 rounded-2xl p-3.5 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-white" data-i18n="lang_label">زمان (Language / اللغة)</span>
+          <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button type="button" data-lang="ckb" class="lang-btn px-2.5 py-1.5 rounded-lg bg-brand-cyan text-slate-950 font-bold text-xs">کوردی</button>
+            <button type="button" data-lang="ar" class="lang-btn px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white text-xs">العربية</button>
+            <button type="button" data-lang="en" class="lang-btn px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white text-xs">English</button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
+          <span class="font-bold text-white">شێوازی نەخشە</span>
+          <select id="settings-style-select" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white outline-none">
+            <option value="dark3d">1. 3D Dark Cockpit</option>
+            <option value="day">2. Clean Day Navigation</option>
+            <option value="satellite">3. Satellite Hybrid (Esri)</option>
+            <option value="traffic">4. Traffic View (DEMO / Adapter)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Voice & Audio Settings -->
+      <div class="bg-slate-900/75 rounded-2xl p-3.5 border border-slate-800 space-y-2.5">
+        <h3 class="font-bold text-white text-sm">ڕێنمایی دەنگی و زەنگی ئاگادارکردنەوە</h3>
+        <p id="tts-support-status" class="text-[11px] text-amber-300 leading-relaxed">
+          پشکنینی دەنگی سیستەم (Web Speech API)...
+        </p>
+        <div class="flex items-center justify-between">
+          <span>ڕێنمایی دەنگی (TTS)</span>
+          <input id="chk-tts-enabled" type="checkbox" checked class="w-4 h-4 accent-brand-cyan" />
+        </div>
+        <div class="flex items-center justify-between">
+          <span>زەنگی ڕادار (Web Audio API Chime)</span>
+          <input id="chk-chime-enabled" type="checkbox" checked class="w-4 h-4 accent-brand-cyan" />
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <span>ئاستی دەنگ</span>
+          <input id="slider-volume" type="range" min="0" max="1" step="0.1" value="0.9" class="w-36 accent-brand-cyan" />
+        </div>
+        <div class="flex items-center gap-2 pt-1">
+          <button id="btn-test-voice" type="button" class="flex-1 min-h-[38px] rounded-xl bg-brand-cyan/20 border border-brand-cyan/40 text-brand-cyan font-bold">
+            تاقیکردنەوەی دەنگی کوردی
+          </button>
+          <button id="btn-test-chime" type="button" class="flex-1 min-h-[38px] rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold">
+            تاقیکردنەوەی زەنگی ڕادار
+          </button>
+        </div>
+      </div>
+
+      <!-- Demo & Nearby Drivers / Traffic Layers -->
+      <div class="bg-slate-900/75 rounded-2xl p-3.5 border border-slate-800 space-y-2.5">
+        <h3 class="font-bold text-white text-sm">چینەکانی تاقیکاری (Explicit Demo Modes)</h3>
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-semibold text-slate-200">شۆفێرانی نزیک (DEMO Nearby Drivers)</div>
+            <div class="text-[10px] text-slate-400">نیشانەی DEMO لەسەر ئۆتۆمبێلە خەیاڵییەکان دادەنێت</div>
+          </div>
+          <input id="chk-nearby-demo" type="checkbox" class="w-4 h-4 accent-amber-400" />
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
+          <div>
+            <div class="font-semibold text-slate-200">چینی قەرەباڵغی هاتووچۆ (DEMO Traffic Layer)</div>
+            <div class="text-[10px] text-slate-400">نمایشی تاقیکاری لەسەر شەقامەکانی هەولێر (ڕاستەقینە نییە)</div>
+          </div>
+          <input id="chk-traffic-demo" type="checkbox" class="w-4 h-4 accent-amber-400" />
+        </div>
+      </div>
+
+      <!-- Real Service & Provider Status Diagnostics -->
+      <div class="bg-slate-900/75 rounded-2xl p-3.5 border border-slate-800 space-y-2">
+        <h3 class="font-bold text-white text-sm">دۆخی ڕاستەقینەی دابینکەران (Provider Adapters)</h3>
+        <div class="divide-y divide-slate-800/80">
+          <div class="py-1.5 flex items-center justify-between">
+            <span>GPS و شوێن (Browser Geolocation)</span>
+            <span id="diag-gps" class="font-mono text-amber-300">Permission Required</span>
+          </div>
+          <div class="py-1.5 flex items-center justify-between">
+            <span>نەخشە و تایل (CARTO / OpenFreeMap / Esri)</span>
+            <span id="diag-map" class="font-mono text-emerald-400">Connected (Live)</span>
+          </div>
+          <div class="py-1.5 flex items-center justify-between">
+            <span>گەڕان (Nominatim OpenStreetMap)</span>
+            <span id="diag-geocoder" class="font-mono text-emerald-400">Connected (Rate-Limited)</span>
+          </div>
+          <div class="py-1.5 flex items-center justify-between">
+            <span>ڕێڕەو (OSRM Public Router)</span>
+            <span id="diag-routing" class="font-mono text-emerald-400">Connected (No Live Traffic)</span>
+          </div>
+          <div class="py-1.5 flex items-center justify-between">
+            <span>کامێراکان (Overpass API + Local/Demo)</span>
+            <span id="diag-overpass" class="font-mono text-emerald-400">Ready / Cached</span>
+          </div>
+          <div class="py-1.5 flex items-center justify-between">
+            <span>هاتووچۆی ڕاستەوخۆ (Live Traffic Provider)</span>
+            <span id="diag-traffic" class="font-mono text-slate-400">Unavailable (Demo Mode Optional)</span>
+          </div>
+          <div class="py-1.5 flex items-center justify-between">
+            <span>پەیوەندی Waze (Waze Live Map API)</span>
+            <span class="font-mono text-rose-400">Unavailable (No Official Public API)</span>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-400 pt-1 leading-relaxed">
+          تێبینی Waze: خاڵە ناوخۆییەکانی Waze Live Map فەرمی نین بۆ بەکارهێنانی گشتی و پشتبەستن بە CORS Proxy قبوڵکراو نییە. بۆیە بە شێوەیەکی ڕاستگۆیانە ناچالاک کراوە تا دابینکەرێکی فەرمی لە سێرڤەرەوە دەبەسترێت.
+        </p>
+      </div>
+
+      <!-- Cache & Storage Management -->
+      <div class="bg-slate-900/75 rounded-2xl p-3.5 border border-slate-800 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-bold text-white">بەڕێوەبردنی پاشەکەوت (Cache & Local Data)</div>
+            <div id="cache-stats-label" class="text-[11px] text-slate-400">ڕاپۆرتە ناوخۆییەکان و کاشی کامێراکان</div>
+          </div>
+          <button id="btn-clear-cache" type="button" class="min-h-[36px] px-3 rounded-xl bg-rose-600/20 border border-rose-500/40 text-rose-300 font-bold hover:bg-rose-600/30">
+            سڕینەوەی کاش
+          </button>
+        </div>
+      </div>
+
+      <!-- PWA Installation & Single-File HTML Download -->
+      <div class="bg-slate-900/75 rounded-2xl p-3.5 border border-slate-800 space-y-2.5">
+        <h3 class="font-bold text-white text-sm">دامەزراندنی PWA و داگرتنی کۆدی سەربەخۆ</h3>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          بۆ بەکارهێنانی GPS لە وێبگەڕدا پێویستە لەسەر <span class="font-mono text-brand-cyan">HTTPS</span> یان <span class="font-mono text-brand-cyan">localhost</span> کار بکات. لە ژینگەی بەرهەمهێناندا (Production PWA)، پەڕگەکانی <span class="font-mono">manifest.webmanifest</span> و <span class="font-mono">service-worker.js</span> لە پاڵ <span class="font-mono">index.html</span> دادەنرێن.
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button id="btn-settings-install-pwa" type="button" class="flex-1 min-h-[40px] px-3 rounded-xl bg-brand-cyan text-slate-950 font-extrabold text-xs">
+            دامەزراندنی وەک ئەپ (Install PWA)
+          </button>
+          <button id="btn-download-html" type="button" class="flex-1 min-h-[40px] px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700">
+            داگرتنی پەڕگەی index.html
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. COMPACT BOTTOM NAVIGATION MENU (5 Required Sections: ماپ، گەڕان، ڕادار، ڕاپۆرت، ڕێکخستن) -->
+  <nav class="fixed bottom-0 inset-x-0 z-30 cockpit-glass border-t border-slate-800/90 h-16 px-2" aria-label="لیستی خوارەوە">
+    <div class="max-w-xl mx-auto h-full grid grid-cols-5 items-center gap-1">
+      <button type="button" data-nav-tab="map" class="bottom-nav-btn min-h-[48px] rounded-2xl flex flex-col items-center justify-center text-brand-cyan font-bold transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.382V5.618a2 2 0 011.447-1.894L9 2m0 18l6-3m-6 3V2m6 15l5.447 2.724A2 2 0 0021 17.882V8.118a2 2 0 00-1.447-1.894L15 4m0 13V4m0 0L9 2"/></svg>
+        <span class="text-[11px] mt-0.5" data-i18n="nav_map">ماپ</span>
+      </button>
+
+      <button type="button" data-nav-tab="search" class="bottom-nav-btn min-h-[48px] rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white font-medium transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
+        <span class="text-[11px] mt-0.5" data-i18n="nav_search">گەڕان</span>
+      </button>
+
+      <button type="button" data-nav-tab="radar" class="bottom-nav-btn min-h-[48px] rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white font-medium transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="M12 12l6-6"/></svg>
+        <span class="text-[11px] mt-0.5" data-i18n="nav_radar">ڕادار</span>
+      </button>
+
+      <button type="button" data-nav-tab="report" class="bottom-nav-btn min-h-[48px] rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white font-medium transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span class="text-[11px] mt-0.5" data-i18n="nav_report">ڕاپۆرت</span>
+      </button>
+
+      <button type="button" data-nav-tab="settings" class="bottom-nav-btn min-h-[48px] rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white font-medium transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+        <span class="text-[11px] mt-0.5" data-i18n="nav_settings">ڕێکخستن</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- NON-INTRUSIVE TOAST NOTIFICATION -->
+  <div id="cockpit-toast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-50 cockpit-glass rounded-2xl px-4 py-2.5 text-xs font-bold text-white shadow-2xl border-brand-cyan/40 transition-all"></div>
+
+  <!-- 9. MODULAR ARCHITECTURE JAVASCRIPT -->
+  <script type="module">
+    /**
+     * WazeKurd 3D — ڕاداری کوردستان
+     * Principal Automotive Navigation Architecture
+     * Modular Provider-Adapter Services in Vanilla ES JavaScript
+     */
+
+    // =========================================================================
+    // MODULE 1: CONSTANTS, TRANSLATIONS (ckb, ar, en) & GEOMETRY UTILITIES
+    // =========================================================================
+    const DEFAULT_ERBIL = { lat: 36.1911, lng: 44.0092, label: 'هەولێر (بنەڕەتی)' };
+
+    const I18N = {
+      ckb: {
+        dir: 'rtl',
+        search_placeholder: 'بۆ کوێ دەچیت؟',
+        gps_prompt_msg: 'نەخشە لەسەر هەولێر جێگیرکراوە. بۆ دیاریکردنی شوێنی ڕاستەقینەت GPS چالاک بکە.',
+        enable_gps_btn: 'چالاککردنی GPS',
+        dismiss_btn: 'داخستن',
+        install_app: 'دامەزراندن',
+        nav_map: 'ماپ',
+        nav_search: 'گەڕان',
+        nav_radar: 'ڕادار',
+        nav_report: 'ڕاپۆرت',
+        nav_settings: 'ڕێکخستن',
+        offline_notice: 'ئینتەرنێت پچڕاوە — داتای پاشەکەوتکراو (Cache) بەکاردێت.',
+        search_sheet_title: 'گەڕان لە کوردستان و عێراق',
+        quick_categories: 'هاوپۆلە خێراکان و شارە سەرەکییەکان:',
+        settings_title: 'ڕێکخستنەکان و دۆخی دابینکەران',
+        lang_label: 'زمان (Language / اللغة)',
+        map_styles_title: 'شێوازی نەخشە هەڵبژێرە'
+      },
+      ar: {
+        dir: 'rtl',
+        search_placeholder: 'إلى أين تذهب؟',
+        gps_prompt_msg: 'الخريطة متمركزة في أربيل افتراضياً. فعّل GPS لتحديد موقعك الفعلي.',
+        enable_gps_btn: 'تفعيل GPS',
+        dismiss_btn: 'إغلاق',
+        install_app: 'تثبيت',
+        nav_map: 'الخريطة',
+        nav_search: 'بحث',
+        nav_radar: 'رادار',
+        nav_report: 'إبلاغ',
+        nav_settings: 'الإعدادات',
+        offline_notice: 'لا يوجد اتصال بالإنترنت — يتم استخدام البيانات المخزنة مؤقتاً.',
+        search_sheet_title: 'البحث في كوردستان والعراق',
+        quick_categories: 'الفئات السريعة والمدن الرئيسية:',
+        settings_title: 'الإعدادات وحالة المزودين',
+        lang_label: 'اللغة (زمان / Language)',
+        map_styles_title: 'اختر نمط الخريطة'
+      },
+      en: {
+        dir: 'ltr',
+        search_placeholder: 'Where are you going?',
+        gps_prompt_msg: 'Map centered on Erbil default. Enable GPS for your live location.',
+        enable_gps_btn: 'Enable GPS',
+        dismiss_btn: 'Dismiss',
+        install_app: 'Install',
+        nav_map: 'Map',
+        nav_search: 'Search',
+        nav_radar: 'Radar',
+        nav_report: 'Report',
+        nav_settings: 'Settings',
+        offline_notice: 'Offline Mode — Cached data is being used.',
+        search_sheet_title: 'Search Kurdistan & Iraq',
+        quick_categories: 'Quick Categories & Major Cities:',
+        settings_title: 'Settings & Provider Status',
+        lang_label: 'Language (زمان / اللغة)',
+        map_styles_title: 'Select Map Style'
+      }
+    };
+
+    const REPORT_CATEGORIES = [
+      { id: 'mobile_camera', label: 'کامێرای گەڕۆک', icon: '🚓', color: '#F59E0B', isCamera: true },
+      { id: 'fixed_camera', label: 'کامێرای جێگیر', icon: '📷', color: '#EF4444', isCamera: true },
+      { id: 'p2p_camera', label: 'کامێرای خاڵ بۆ خاڵ', icon: '⏱️', color: '#8B5CF6', isCamera: true },
+      { id: 'traffic_light', label: 'قەرەباڵغی سووک', icon: '🟡', color: '#FBBF24', isCamera: false },
+      { id: 'traffic_mod', label: 'قەرەباڵغی مامناوەند', icon: '🟠', color: '#F97316', isCamera: false },
+      { id: 'traffic_heavy', label: 'قەرەباڵغی زۆر', icon: '🔴', color: '#DC2626', isCamera: false },
+      { id: 'police', label: 'مەفرەزە و پۆلیس', icon: '👮', color: '#38BDF8', isCamera: false },
+      { id: 'accident', label: 'ڕووداوی هاتووچۆ', icon: '💥', color: '#EF4444', isCamera: false },
+      { id: 'hazard', label: 'تاسە و بەربەست', icon: '⚠️', color: '#F59E0B', isCamera: false },
+      { id: 'fuel', label: 'بەنزینخانە', icon: '⛽', color: '#10B981', isCamera: false },
+      { id: 'emergency', label: 'فریاگوزاری', icon: '🚑', color: '#EC4899', isCamera: false }
+    ];
+
+    const GeoMath = {
+      toRad(deg) { return (deg * Math.PI) / 180; },
+      toDeg(rad) { return (rad * 180) / Math.PI; },
+
+      // Haversine distance in meters
+      distanceMeters(lat1, lng1, lat2, lng2) {
+        const R = 6371000;
+        const dLat = this.toRad(lat2 - lat1);
+        const dLng = this.toRad(lng2 - lng1);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
+          Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      },
+
+      // Initial bearing in degrees (0 = North, 90 = East)
+      bearingDegrees(lat1, lng1, lat2, lng2) {
+        const φ1 = this.toRad(lat1);
+        const φ2 = this.toRad(lat2);
+        const Δλ = this.toRad(lng2 - lng1);
+        const y = Math.sin(Δλ) * Math.cos(φ2);
+        const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+        return (this.toDeg(Math.atan2(y, x)) + 360) % 360;
+      },
+
+      // Shortest angular difference (-180 to 180)
+      angleDiff(a, b) {
+        return ((b - a + 540) % 360) - 180;
+      },
+
+      // Circular angle interpolation for smooth heading
+      lerpAngle(current, target, alpha = 0.25) {
+        const diff = this.angleDiff(current, target);
+        return (current + diff * alpha + 360) % 360;
+      },
+
+      // Minimum distance in meters from point (lat,lng) to a polyline [[lng,lat], ...]
+      pointToRouteDistance(lat, lng, routeCoords) {
+        if (!routeCoords || routeCoords.length === 0) return Infinity;
+        let minD = Infinity;
+        for (let i = 0; i < routeCoords.length; i++) {
+          const [rLng, rLat] = routeCoords[i];
+          const d = this.distanceMeters(lat, lng, rLat, rLng);
+          if (d < minD) minD = d;
+        }
+        return minD;
+      }
+    };
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showToast(msg, duration = 3400) {
+      const el = document.getElementById('cockpit-toast');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.add('hidden'), duration);
+    }
+
+    // =========================================================================
+    // MODULE 2: LOCAL STORAGE & CACHING SERVICE
+    // =========================================================================
+    const StorageService = {
+      PREFIX: 'wazekurd3d_v1_',
+      get(key, fallback = null) {
+        try {
+          const raw = localStorage.getItem(this.PREFIX + key);
+          if (!raw) return fallback;
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed._expiresAt && Date.now() > parsed._expiresAt) {
+            localStorage.removeItem(this.PREFIX + key);
+            return fallback;
+          }
+          return parsed ? parsed.value : fallback;
+        } catch {
+          return fallback;
+        }
+      },
+      set(key, value, ttlMs = null) {
+        try {
+          const payload = {
+            value,
+            _savedAt: Date.now(),
+            _expiresAt: ttlMs ? Date.now() + ttlMs : null
+          };
+          localStorage.setItem(this.PREFIX + key, JSON.stringify(payload));
+        } catch {
+          // Ignore quota errors gracefully
+        }
+      },
+      clearAll() {
+        try {
+          Object.keys(localStorage).forEach((k) => {
+            if (k.startsWith(this.PREFIX)) localStorage.removeItem(k);
+          });
+        } catch {}
+      }
+    };
+
+    // =========================================================================
+    // MODULE 3: MAP STYLE & TILE PROVIDER ADAPTER (4 Required Styles)
+    // =========================================================================
+    const MapStyleProvider = {
+      currentStyleId: 'dark3d',
+
+      // Constructs authentic MapLibre Style Specs with real public tile providers & full attribution
+      getStyleSpec(styleId) {
+        const osmAttribution = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
+        const cartoAttribution = '© <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>';
+        const esriAttribution = 'Tiles © <a href="https://www.esri.com" target="_blank" rel="noopener">Esri</a> — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community';
+
+        if (styleId === 'satellite') {
+          return {
+            version: 8,
+            name: 'WazeKurd Satellite Hybrid',
+            sources: {
+              esri_world_imagery: {
+                type: 'raster',
+                tiles: [
+                  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                ],
+                tileSize: 256,
+                attribution: esriAttribution,
+                maxzoom: 19
+              },
+              esri_transport_overlay: {
+                type: 'raster',
+                tiles: [
+                  'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}'
+                ],
+                tileSize: 256,
+                maxzoom: 19
+              },
+              esri_places_overlay: {
+                type: 'raster',
+                tiles: [
+                  'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'
+                ],
+                tileSize: 256,
+                maxzoom: 19
+              }
+            },
+            layers: [
+              { id: 'esri-imagery-layer', type: 'raster', source: 'esri_world_imagery' },
+              { id: 'esri-transport-layer', type: 'raster', source: 'esri_transport_overlay', paint: { 'raster-opacity': 0.88 } },
+              { id: 'esri-places-layer', type: 'raster', source: 'esri_places_overlay', paint: { 'raster-opacity': 0.92 } }
+            ]
+          };
+        }
+
+        if (styleId === 'day') {
+          return {
+            version: 8,
+            name: 'WazeKurd Clean Day Navigation',
+            sources: {
+              carto_voyager: {
+                type: 'raster',
+                tiles: [
+                  'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+                  'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+                ],
+                tileSize: 256,
+                attribution: `${osmAttribution} · ${cartoAttribution}`,
+                maxzoom: 20
+              },
+              openfreemap_vec: {
+                type: 'vector',
+                url: 'https://tiles.openfreemap.org/planet'
+              }
+            },
+            layers: [
+              { id: 'day-base', type: 'raster', source: 'carto_voyager' },
+              {
+                id: 'buildings-3d-day',
+                type: 'fill-extrusion',
+                source: 'openfreemap_vec',
+                'source-layer': 'building',
+                minzoom: 14.5,
+                paint: {
+                  'fill-extrusion-color': '#CBD5E1',
+                  'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 12],
+                  'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+                  'fill-extrusion-opacity': 0.65
+                }
+              }
+            ]
+          };
+        }
+
+        // 'dark3d' or 'traffic' (both use the Dark 3D Cockpit base + vector 3D building extrusion)
+        return {
+          version: 8,
+          name: 'WazeKurd 3D Dark Cockpit',
+          sources: {
+            carto_dark: {
+              type: 'raster',
+              tiles: [
+                'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+                'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+              ],
+              tileSize: 256,
+              attribution: `${osmAttribution} · ${cartoAttribution} · OpenFreeMap`,
+              maxzoom: 20
+            },
+            openfreemap_vec: {
+              type: 'vector',
+              url: 'https://tiles.openfreemap.org/planet'
+            }
+          },
+          layers: [
+            {
+              id: 'dark-base',
+              type: 'raster',
+              source: 'carto_dark',
+              paint: {
+                'raster-contrast': 0.12,
+                'raster-brightness-max': 0.92
+              }
+            },
+            {
+              id: 'buildings-3d-dark',
+              type: 'fill-extrusion',
+              source: 'openfreemap_vec',
+              'source-layer': 'building',
+              minzoom: 14.5,
+              paint: {
+                'fill-extrusion-color': [
+                  'interpolate',
+                  ['linear'],
+                  ['coalesce', ['get', 'render_height'], 10],
+                  0, '#131C31',
+                  30, '#1E293B',
+                  80, '#233554'
+                ],
+                'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 12],
+                'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+                'fill-extrusion-opacity': 0.78
+              }
+            }
+          ]
+        };
+      }
+    };
+
+    // =========================================================================
+    // MODULE 4: KURDISH VOICE (WEB SPEECH API) & SYNTHESIZED AUDIO (WEB AUDIO API)
+    // =========================================================================
+    const VoiceAudioEngine = {
+      ttsEnabled: true,
+      chimeEnabled: true,
+      volume: 0.9,
+      muted: false,
+      audioCtx: null,
+      selectedVoice: null,
+      voiceSupportNote: '',
+      lastSpokenText: '',
+      lastSpokenAt: 0,
+
+      init() {
+        const saved = StorageService.get('audio_prefs');
+        if (saved) {
+          this.ttsEnabled = saved.ttsEnabled ?? true;
+          this.chimeEnabled = saved.chimeEnabled ?? true;
+          this.volume = saved.volume ?? 0.9;
+          this.muted = saved.muted ?? false;
+        }
+        this.detectVoices();
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.onvoiceschanged = () => this.detectVoices();
+        }
+      },
+
+      savePrefs() {
+        StorageService.set('audio_prefs', {
+          ttsEnabled: this.ttsEnabled,
+          chimeEnabled: this.chimeEnabled,
+          volume: this.volume,
+          muted: this.muted
+        });
+      },
+
+      ensureAudioContext() {
+        if (!this.audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          this.audioCtx = new Ctx();
+        }
+        if (this.audioCtx && this.audioCtx.state === 'suspended') {
+          this.audioCtx.resume().catch(() => {});
+        }
+      },
+
+      detectVoices() {
+        const statusEl = document.getElementById('tts-support-status');
+        if (!('speechSynthesis' in window)) {
+          this.voiceSupportNote = 'ئەم وێبگەڕە پشتگیری Web Speech API ناکات. ڕێنماییەکان بە نووسینی کوردی پیشان دەدرێن.';
+          if (statusEl) statusEl.textContent = this.voiceSupportNote;
+          return;
+        }
+        const voices = window.speechSynthesis.getVoices() || [];
+        const kurdishVoice = voices.find((v) =>
+          /^(ckb|ku|kmr)/i.test(v.lang) || /kurd/i.test(v.name)
+        );
+        const arabicOrPersianFallback = voices.find((v) =>
+          /^(ar|fa)/i.test(v.lang)
+        );
+        if (kurdishVoice) {
+          this.selectedVoice = kurdishVoice;
+          this.voiceSupportNote = `دەنگی کوردی دۆزرایەوە لە سیستەمەکەتدا: ${kurdishVoice.name} (${kurdishVoice.lang})`;
+        } else if (arabicOrPersianFallback) {
+          this.selectedVoice = arabicOrPersianFallback;
+          this.voiceSupportNote = `تێبینی ڕاستگۆیانە: دەنگی خۆماڵیی کوردی (Sorani TTS) لەم ئامێرەدا بەردەست نییە. ڕێنماییەکان بە کوردی دەنووسرێن و دەنگی هاوشێوە (${arabicOrPersianFallback.lang}) یان زەنگی ئاگادارکردنەوە بەکاردێت.`;
+        } else {
+          this.selectedVoice = voices[0] || null;
+          this.voiceSupportNote = 'تێبینی ڕاستگۆیانە: دەنگی کوردی لە سیستەمی ئەم ئامێرەدا نییە. ڕێنماییە نووسراوەکان بە سۆرانییە و زەنگی تایبەتی Web Audio چالاکە.';
+        }
+        if (statusEl) statusEl.textContent = this.voiceSupportNote;
+      },
+
+      playChime(type = 'radar') {
+        if (this.muted || !this.chimeEnabled) return;
+        try {
+          this.ensureAudioContext();
+          if (!this.audioCtx) return;
+          const now = this.audioCtx.currentTime;
+          const osc = this.audioCtx.createOscillator();
+          const gain = this.audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(this.audioCtx.destination);
+
+          if (type === 'radar') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(880, now);
+            osc.frequency.setValueAtTime(1174.66, now + 0.14);
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(Math.max(0.05, this.volume * 0.35), now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+            osc.start(now);
+            osc.stop(now + 0.35);
+          } else {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, now);
+            osc.frequency.setValueAtTime(783.99, now + 0.12);
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(Math.max(0.05, this.volume * 0.25), now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+            osc.start(now);
+            osc.stop(now + 0.28);
+          }
+        } catch {}
+      },
+
+      speak(kurdishText, force = false) {
+        if (this.muted || !this.ttsEnabled || !('speechSynthesis' in window)) return;
+        const now = Date.now();
+        if (!force && kurdishText === this.lastSpokenText && now - this.lastSpokenAt < 12000) {
+          return;
+        }
+        this.lastSpokenText = kurdishText;
+        this.lastSpokenAt = now;
+
+        try {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(kurdishText);
+          utter.volume = this.volume;
+          utter.rate = 0.95;
+          if (this.selectedVoice) {
+            utter.voice = this.selectedVoice;
+            utter.lang = this.selectedVoice.lang;
+          } else {
+            utter.lang = 'ckb-IQ';
+          }
+          window.speechSynthesis.speak(utter);
+        } catch {}
+      }
+    };
+
+    // =========================================================================
+    // MODULE 5: GEOCODING & SEARCH PROVIDER (Nominatim + Coordinate Parser)
+    // =========================================================================
+    const GeocodingProvider = {
+      abortCtrl: null,
+      lastRequestTime: 0,
+
+      parseCoordinates(query) {
+        const cleaned = query.trim();
+        const match = cleaned.match(/^(-?\d+(?:\.\d+)?)\s*[,\s]\s*(-?\d+(?:\.\d+)?)$/);
+        if (!match) return null;
+        const lat = parseFloat(match[1]);
+        const lng = parseFloat(match[2]);
+        if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+          return {
+            id: `coord_${lat}_${lng}`,
+            name: `پۆتانی دیاریکراو (${lat.toFixed(4)}, ${lng.toFixed(4)})`,
+            displayName: `پۆتانی جوگرافی ڕاستەوخۆ: Lat ${lat.toFixed(5)}, Lng ${lng.toFixed(5)}`,
+            lat,
+            lng,
+            type: 'coordinate'
+          };
+        }
+        return null;
+      },
+
+      async search(query) {
+        const q = query.trim();
+        if (!q) return [];
+
+        // 1. Check direct coordinates first
+        const coordHit = this.parseCoordinates(q);
+        if (coordHit) return [coordHit];
+
+        // 2. Check cache
+        const cacheKey = `geocode_${q.toLowerCase()}`;
+        const cached = StorageService.get(cacheKey);
+        if (cached) return cached;
+
+        // 3. Cancel previous in-flight request
+        if (this.abortCtrl) this.abortCtrl.abort();
+        this.abortCtrl = new AbortController();
+
+        // Respect rate limit (at least 900ms spacing for Nominatim)
+        const elapsed = Date.now() - this.lastRequestTime;
+        if (elapsed < 900) {
+          await new Promise((r) => setTimeout(r, 900 - elapsed));
+        }
+        this.lastRequestTime = Date.now();
+
+        const timeoutId = setTimeout(() => {
+          if (this.abortCtrl) this.abortCtrl.abort();
+        }, 8000);
+
+        try {
+          // Prioritize Iraq & Kurdistan Region (countrycodes=iq)
+          const url = new URL('https://nominatim.openstreetmap.org/search');
+          url.searchParams.set('q', q);
+          url.searchParams.set('format', 'jsonv2');
+          url.searchParams.set('addressdetails', '1');
+          url.searchParams.set('limit', '8');
+          url.searchParams.set('countrycodes', 'iq');
+          url.searchParams.set('accept-language', 'ckb,ku,ar,en');
+
+          const res = await fetch(url.toString(), {
+            signal: this.abortCtrl.signal,
+            headers: { 'Accept': 'application/json' }
+          });
+          clearTimeout(timeoutId);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+
+          const mapped = (Array.isArray(data) ? data : []).map((item) => ({
+            id: String(item.place_id),
+            name: item.name || (item.display_name ? item.display_name.split(',')[0] : q),
+            displayName: item.display_name || '',
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+            type: item.type || item.category || 'place'
+          }));
+
+          StorageService.set(cacheKey, mapped, 1000 * 60 * 30); // 30m cache
+          return mapped;
+        } catch (err) {
+          clearTimeout(timeoutId);
+          throw err;
+        }
+      }
+    };
+
+    // =========================================================================
+    // MODULE 6: ROUTING PROVIDER (OSRM Real Route Calculation + Maneuver Translation)
+    // =========================================================================
+    const RoutingProvider = {
+      abortCtrl: null,
+
+      translateManeuverToKurdish(step) {
+        if (!step || !step.maneuver) return 'بەردەوام بە لەسەر ڕێگاکە';
+        const type = step.maneuver.type || '';
+        const mod = step.maneuver.modifier || '';
+        const road = step.name ? ` بۆ سەر ${step.name}` : '';
+
+        if (type === 'arrive') return 'گەیشتیتە مەبەست';
+        if (type === 'depart') return `دەستپێبکە${road}`;
+        if (type === 'roundabout' || type === 'rotary') return `لە فلکەکەدا بسووڕێوە${road}`;
+        if (mod.includes('uturn')) return `پێچ بکەرەوە (U-Turn)${road}`;
+        if (mod === 'right' || mod === 'sharp right') return `بۆ ڕاست وەرچەرخە${road}`;
+        if (mod === 'slight right') return `کەمێک بۆ لای ڕاست بڕۆ${road}`;
+        if (mod === 'left' || mod === 'sharp left') return `بۆ چەپ وەرچەرخە${road}`;
+        if (mod === 'slight left') return `کەمێک بۆ لای چەپ بڕۆ${road}`;
+        return `ڕاستەوخۆ بەردەوام بە${road}`;
+      },
+
+      async calculateRoutes(startLat, startLng, endLat, endLng) {
+        if (this.abortCtrl) this.abortCtrl.abort();
+        this.abortCtrl = new AbortController();
+        const timeoutId = setTimeout(() => {
+          if (this.abortCtrl) this.abortCtrl.abort();
+        }, 10000);
+
+        try {
+          const coordsStr = `${startLng.toFixed(6)},${startLat.toFixed(6)};${endLng.toFixed(6)},${endLat.toFixed(6)}`;
+          const url = `https://router.project-osrm.org/route/v1/driving/${coordsStr}?alternatives=3&steps=true&geometries=geojson&overview=full`;
+
+          const res = await fetch(url, { signal: this.abortCtrl.signal });
+          clearTimeout(timeoutId);
+          if (!res.ok) throw new Error(`OSRM HTTP ${res.status}`);
+          const json = await res.json();
+          if (!json.routes || json.routes.length === 0) {
+            throw new Error('هیچ ڕێڕەوێک نەدۆزرایەوە');
+          }
+
+          return json.routes.slice(0, 3).map((r, idx) => {
+            const steps = (r.legs && r.legs[0] && r.legs[0].steps ? r.legs[0].steps : []).map((s) => ({
+              distance: s.distance,
+              duration: s.duration,
+              name: s.name || '',
+              instruction: this.translateManeuverToKurdish(s),
+              maneuverType: s.maneuver ? s.maneuver.type : 'continue',
+              maneuverModifier: s.maneuver ? s.maneuver.modifier || 'straight' : 'straight',
+              location: s.maneuver && s.maneuver.location ? s.maneuver.location : [startLng, startLat]
+            }));
+
+            return {
+              index: idx,
+              distanceMeters: r.distance,
+              durationSeconds: r.duration,
+              geometry: r.geometry, // GeoJSON LineString
+              steps
+            };
+          });
+        } catch (err) {
+          clearTimeout(timeoutId);
+          throw err;
+        }
+      }
+    };
+
+    // =========================================================================
+    // MODULE 7: CAMERA DATABASE & OVERPASS API PROVIDER
+    // Separates: 1. External OSM Provider, 2. Community Reports, 3. Verified, 4. Explicit DEMO
+    // =========================================================================
+    const CameraRadarProvider = {
+      osmCameras: [],
+      communityReports: [],
+      showDemoRecords: true,
+      lastOverpassFetchAt: 0,
+      isFetching: false,
+
+      // Explicit DEMO records clearly badged as DEMO for testing radar & simulation
+      demoRecords: [
+        {
+          id: 'demo_cam_erbil_1',
+          lat: 36.2045,
+          lng: 44.0005,
+          category: 'کامێرای جێگیر',
+          source: 'DEMO (نموونەی تاقیکاری)',
+          isDemo: true,
+          verified: false,
+          reliability: 100,
+          speedLimit: 80,
+          updatedAt: '2026-10-18'
+        },
+        {
+          id: 'demo_cam_erbil_2',
+          lat: 36.2182,
+          lng: 43.9942,
+          category: 'کامێرای خاڵ بۆ خاڵ',
+          source: 'DEMO (نموونەی تاقیکاری)',
+          isDemo: true,
+          verified: false,
+          reliability: 100,
+          speedLimit: 100,
+          updatedAt: '2026-10-18'
+        },
+        {
+          id: 'demo_cam_erbil_3',
+          lat: 36.1978,
+          lng: 44.0058,
+          category: 'کامێرای گەڕۆک',
+          source: 'DEMO (ڕاپۆرتی تاقیکاری)',
+          isDemo: true,
+          isCommunity: true,
+          verified: false,
+          reliability: 75,
+          speedLimit: null,
+          updatedAt: '2026-10-18'
+        },
+        {
+          id: 'demo_cam_shaqlawa_1',
+          lat: 36.3105,
+          lng: 44.2150,
+          category: 'کامێرای سنووری خێرایی',
+          source: 'DEMO (نموونەی تاقیکاری)',
+          isDemo: true,
+          verified: false,
+          reliability: 100,
+          speedLimit: 80,
+          updatedAt: '2026-10-18'
+        },
+        {
+          id: 'demo_cam_suli_1',
+          lat: 35.5640,
+          lng: 45.3820,
+          category: 'کامێرای خاڵ بۆ خاڵ',
+          source: 'DEMO (نموونەی تاقیکاری)',
+          isDemo: true,
+          verified: false,
+          reliability: 100,
+          speedLimit: 80,
+          updatedAt: '2026-10-18'
+        }
+      ],
+
+      init() {
+        const cachedOsm = StorageService.get('osm_cameras_cache', []);
+        this.osmCameras = Array.isArray(cachedOsm) ? cachedOsm : [];
+        const savedComm = StorageService.get('local_community_reports', []);
+        this.communityReports = Array.isArray(savedComm) ? savedComm : [];
+      },
+
+      getAllActiveRecords() {
+        const list = [...this.osmCameras, ...this.communityReports];
+        if (this.showDemoRecords) {
+          list.push(...this.demoRecords);
+        }
+        return list;
+      },
+
+      addCommunityReport(report) {
+        this.communityReports.unshift(report);
+        StorageService.set('local_community_reports', this.communityReports);
+      },
+
+      async fetchOverpassInBounds(bounds) {
+        if (this.isFetching) return this.osmCameras;
+        const now = Date.now();
+        // Throttle requests (at least 15s between manual/viewport queries)
+        if (now - this.lastOverpassFetchAt < 15000 && this.osmCameras.length > 0) {
+          return this.osmCameras;
+        }
+
+        this.isFetching = true;
+        this.lastOverpassFetchAt = now;
+        const statusEl = document.getElementById('overpass-status-label');
+        const diagEl = document.getElementById('diag-overpass');
+        if (statusEl) statusEl.textContent = 'لە بارکردندایە (Overpass)...';
+
+        const south = Math.max(29.0, bounds.getSouth());
+        const west = Math.max(38.5, bounds.getWest());
+        const north = Math.min(37.5, bounds.getNorth());
+        const east = Math.min(48.8, bounds.getEast());
+
+        const query = `[out:json][timeout:12];(node["highway"="speed_camera"](${south.toFixed(3)},${west.toFixed(3)},${north.toFixed(3)},${east.toFixed(3)});node["enforcement"="maxspeed"](${south.toFixed(3)},${west.toFixed(3)},${north.toFixed(3)},${east.toFixed(3)}););out body 120;`;
+
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 12000);
+
+        try {
+          const res = await fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            body: 'data=' + encodeURIComponent(query),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            signal: ctrl.signal
+          });
+          clearTimeout(tid);
+          if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`);
+          const data = await res.json();
+          const elements = Array.isArray(data.elements) ? data.elements : [];
+
+          const seen = new Set(this.osmCameras.map((c) => c.id));
+          elements.forEach((el) => {
+            if (!el.lat || !el.lon) return;
+            const id = `osm_node_${el.id}`;
+            if (seen.has(id)) return;
+            seen.add(id);
+
+            const rawSpeed = el.tags && el.tags.maxspeed ? parseInt(el.tags.maxspeed, 10) : null;
+            const speedLimit = Number.isFinite(rawSpeed) && rawSpeed > 0 ? rawSpeed : null;
+
+            this.osmCameras.push({
+              id,
+              lat: el.lat,
+              lng: el.lon,
+              category: speedLimit ? 'کامێرای سنووری خێرایی' : 'کامێرای جێگیر',
+              source: 'OpenStreetMap (Overpass)',
+              isDemo: false,
+              verified: Boolean(speedLimit),
+              reliability: 90,
+              speedLimit,
+              updatedAt: new Date().toISOString().slice(0, 10)
+            });
+          });
+
+          StorageService.set('osm_cameras_cache', this.osmCameras, 1000 * 60 * 30);
+          if (statusEl) statusEl.textContent = `پەیوەستە (${this.osmCameras.length} کامێرای OSM)`;
+          if (diagEl) diagEl.textContent = `Connected (${this.osmCameras.length} OSM nodes)`;
+          return this.osmCameras;
+        } catch (err) {
+          clearTimeout(tid);
+          if (statusEl) statusEl.textContent = 'کێشە لە Overpass — کاش بەکاردێت';
+          if (diagEl) diagEl.textContent = 'Cached / Rate-Limited';
+          return this.osmCameras;
+        } finally {
+          this.isFetching = false;
+        }
+      }
+    };
+
+    // =========================================================================
+    // MODULE 8: ROUTE-AWARE PROXIMITY RADAR ENGINE (700m Lifecycle)
+    // =========================================================================
+    const ProximityEngine = {
+      dismissedIds: new Set(),
+      announcedApproachingIds: new Set(),
+      announcedNearbyIds: new Set(),
+      activeAlert: null,
+
+      evaluate(userLat, userLng, userHeading, activeRouteCoords) {
+        const records = CameraRadarProvider.getAllActiveRecords();
+        let closestCandidate = null;
+        let closestDist = Infinity;
+
+        for (const rec of records) {
+          if (this.dismissedIds.has(rec.id)) continue;
+
+          const dist = GeoMath.distanceMeters(userLat, userLng, rec.lat, rec.lng);
+          if (dist > 700) continue;
+
+          // Route-aware check: if an active route exists, ensure camera lies within 65m of route geometry
+          // so cameras on parallel roads do not false-trigger.
+          if (activeRouteCoords && activeRouteCoords.length > 1) {
+            const crossTrackDist = GeoMath.pointToRouteDistance(rec.lat, rec.lng, activeRouteCoords);
+            if (crossTrackDist > 65) continue;
+          }
+
+          // Bearing check: if vehicle has a reliable heading, check whether camera is ahead or just passed
+          let isPassed = false;
+          if (Number.isFinite(userHeading)) {
+            const bearingToCam = GeoMath.bearingDegrees(userLat, userLng, rec.lat, rec.lng);
+            const angleDelta = Math.abs(GeoMath.angleDiff(userHeading, bearingToCam));
+            if (angleDelta > 110 && dist < 140) {
+              isPassed = true;
+            } else if (angleDelta > 100 && dist >= 140) {
+              // On opposite direction / behind us
+              continue;
+            }
+          }
+
+          if (dist < closestDist) {
+            closestDist = dist;
+            let lifecycle = 'نزیکبوونەوە (Approaching)';
+            if (isPassed) lifecycle = 'تێپەڕی (Passed)';
+            else if (dist <= 220) lifecycle = 'زۆر نزیک (Nearby)';
+
+            closestCandidate = {
+              record: rec,
+              distance: Math.round(dist),
+              lifecycle,
+              isPassed
+            };
+          }
+        }
+
+        this.activeAlert = closestCandidate;
+        return closestCandidate;
+      },
+
+      dismissCurrent() {
+        if (this.activeAlert && this.activeAlert.record) {
+          this.dismissedIds.add(this.activeAlert.record.id);
+          this.activeAlert = null;
+        }
+      }
+    };
+
+    // =========================================================================
+    // MODULE 9: POINT-TO-POINT AVERAGE SPEED ENGINE
+    // Transparent Formula: Average Speed = Measured Distance / Elapsed Time
+    // =========================================================================
+    const PointToPointEngine = {
+      active: false,
+      isSimulation: false,
+      startPortal: null,
+      endPortal: null,
+      verifiedLimit: null,
+      startTimeMs: 0,
+      distanceTraveledMeters: 0,
+      lastSample: null,
+
+      startSession(startLat, startLng, endLat, endLng, verifiedLimit = null, isSim = false) {
+        this.active = true;
+        this.isSimulation = isSim;
+        this.startPortal = { lat: startLat, lng: startLng };
+        this.endPortal = { lat: endLat, lng: endLng };
+        this.verifiedLimit = verifiedLimit;
+        this.startTimeMs = Date.now();
+        this.distanceTraveledMeters = 0;
+        this.lastSample = { lat: startLat, lng: startLng, time: Date.now() };
+      },
+
+      addGpsSample(lat, lng, accuracyMeters = 10) {
+        if (!this.active) return null;
+        // Filter noisy GPS samples
+        if (accuracyMeters && accuracyMeters > 60) return this.getMetrics(lat, lng);
+
+        if (this.lastSample) {
+          const segDist = GeoMath.distanceMeters(this.lastSample.lat, this.lastSample.lng, lat, lng);
+          const dtSec = Math.max(0.1, (Date.now() - this.lastSample.time) / 1000);
+          const impliedKmh = (segDist / dtSec) * 3.6;
+          // Ignore sudden GPS spikes > 220 km/h or tiny jitter < 1.5m
+          if (segDist >= 1.5 && impliedKmh <= 220) {
+            this.distanceTraveledMeters += segDist;
+            this.lastSample = { lat, lng, time: Date.now() };
+          }
+        } else {
+          this.lastSample = { lat, lng, time: Date.now() };
+        }
+        return this.getMetrics(lat, lng);
+      },
+
+      getMetrics(curLat, curLng) {
+        if (!this.active || !this.startPortal) return null;
+        const elapsedSec = Math.max(1, (Date.now() - this.startTimeMs) / 1000);
+        const distKm = this.distanceTraveledMeters / 1000;
+        const elapsedHours = elapsedSec / 3600;
+        const avgSpeedKmh = elapsedSec > 2 ? distKm / elapsedHours : 0;
+
+        let remKm = 0;
+        if (this.endPortal && Number.isFinite(curLat) && Number.isFinite(curLng)) {
+          remKm = GeoMath.distanceMeters(curLat, curLng, this.endPortal.lat, this.endPortal.lng) / 1000;
+        }
+
+        return {
+          distanceKm: distKm,
+          elapsedSec: Math.floor(elapsedSec),
+          avgSpeedKmh: Math.min(240, avgSpeedKmh),
+          remainingKm: remKm,
+          verifiedLimit: this.verifiedLimit,
+          isSimulation: this.isSimulation
+        };
+      },
+
+      stop() {
+        this.active = false;
+      }
+    };
+
+    // =========================================================================
+    // MODULE 10: DRIVE SIMULATOR ENGINE ("لێخوڕینی تاقیکاری")
+    // Frame-rate independent animation along route geometry with full cleanup
+    // =========================================================================
+    const DriveSimulator = {
+      active: false,
+      paused: false,
+      speedKmh: 80,
+      routeCoords: [], // [[lng,lat], ...]
+      routeSteps: [],
+      progressMeters: 0,
+      totalMeters: 0,
+      elapsedSeconds: 0,
+      rafId: null,
+      lastFrameTs: null,
+      onTickCallback: null,
+
+      PRESETS: {
+        erbil_120m: {
+          name: 'هەولێر: قەڵا ← شەقامی ١٠٠م و ١٢٠م ← عەنکاوە',
+          start: [44.0092, 36.1911],
+          end: [43.9930, 36.2280],
+          fallbackCoords: [
+            [44.0092, 36.1911],
+            [44.0058, 36.1978],
+            [44.0005, 36.2045],
+            [43.9970, 36.2115],
+            [43.9942, 36.2182],
+            [43.9930, 36.2280]
+          ]
+        },
+        erbil_shaqlawa: {
+          name: 'هەولێر ← پیرمام ← شەقڵاوە',
+          start: [44.0092, 36.1911],
+          end: [44.3250, 36.4042],
+          fallbackCoords: [
+            [44.0092, 36.1911],
+            [44.0850, 36.2450],
+            [44.1600, 36.2850],
+            [44.2150, 36.3105],
+            [44.2800, 36.3650],
+            [44.3250, 36.4042]
+          ]
+        },
+        suli_dukan: {
+          name: 'سلێمانی ← تاسڵوجە ← دوکان',
+          start: [45.4329, 35.5558],
+          end: [44.9520, 35.9540],
+          fallbackCoords: [
+            [45.4329, 35.5558],
+            [45.3820, 35.5640],
+            [45.2600, 35.6100],
+            [45.1100, 35.7500],
+            [44.9520, 35.9540]
+          ]
+        }
+      },
+
+      computeTotalDistance(coords) {
+        let sum = 0;
+        for (let i = 1; i < coords.length; i++) {
+          sum += GeoMath.distanceMeters(coords[i - 1][1], coords[i - 1][0], coords[i][1], coords[i][0]);
+        }
+        return sum;
+      },
+
+      interpolateAtDistance(distMeters) {
+        if (this.routeCoords.length === 0) return null;
+        if (distMeters <= 0 || this.routeCoords.length === 1) {
+          const [lng, lat] = this.routeCoords[0];
+          const next = this.routeCoords[1] || this.routeCoords[0];
+          return {
+            lat,
+            lng,
+            heading: GeoMath.bearingDegrees(lat, lng, next[1], next[0])
+          };
+        }
+
+        let accum = 0;
+        for (let i = 1; i < this.routeCoords.length; i++) {
+          const [lng1, lat1] = this.routeCoords[i - 1];
+          const [lng2, lat2] = this.routeCoords[i];
+          const seg = GeoMath.distanceMeters(lat1, lng1, lat2, lng2);
+          if (accum + seg >= distMeters) {
+            const t = seg > 0 ? (distMeters - accum) / seg : 0;
+            const lat = lat1 + (lat2 - lat1) * t;
+            const lng = lng1 + (lng2 - lng1) * t;
+            const heading = GeoMath.bearingDegrees(lat1, lng1, lat2, lng2);
+            return { lat, lng, heading };
+          }
+          accum += seg;
+        }
+
+        const last = this.routeCoords[this.routeCoords.length - 1];
+        const prev = this.routeCoords[this.routeCoords.length - 2] || last;
+        return {
+          lat: last[1],
+          lng: last[0],
+          heading: GeoMath.bearingDegrees(prev[1], prev[0], last[1], last[0])
+        };
+      },
+
+      start(coords, steps, onTick) {
+        this.stop();
+        this.routeCoords = coords;
+        this.routeSteps = steps || [];
+        this.totalMeters = this.computeTotalDistance(coords);
+        this.progressMeters = 0;
+        this.elapsedSeconds = 0;
+        this.active = true;
+        this.paused = false;
+        this.onTickCallback = onTick;
+        this.lastFrameTs = performance.now();
+
+        const loop = (now) => {
+          if (!this.active) return;
+          const dtSec = Math.min(0.25, Math.max(0, (now - this.lastFrameTs) / 1000));
+          this.lastFrameTs = now;
+
+          if (!this.paused) {
+            this.elapsedSeconds += dtSec;
+            const speedMps = (this.speedKmh * 1000) / 3600;
+            this.progressMeters += speedMps * dtSec;
+            if (this.progressMeters >= this.totalMeters) {
+              this.progressMeters = this.totalMeters;
+              this.paused = true;
+            }
+          }
+
+          const pose = this.interpolateAtDistance(this.progressMeters);
+          if (pose && this.onTickCallback) {
+            this.onTickCallback({
+              lat: pose.lat,
+              lng: pose.lng,
+              heading: pose.heading,
+              speedKmh: this.paused ? 0 : this.speedKmh,
+              progressMeters: this.progressMeters,
+              totalMeters: this.totalMeters,
+              elapsedSeconds: this.elapsedSeconds,
+              finished: this.progressMeters >= this.totalMeters
+            });
+          }
+
+          this.rafId = requestAnimationFrame(loop);
+        };
+
+        this.rafId = requestAnimationFrame(loop);
+      },
+
+      restart() {
+        this.progressMeters = 0;
+        this.elapsedSeconds = 0;
+        this.paused = false;
+        this.lastFrameTs = performance.now();
+      },
+
+      stop() {
+        this.active = false;
+        this.paused = false;
+        if (this.rafId) {
+          cancelAnimationFrame(this.rafId);
+          this.rafId = null;
+        }
+      }
+    };
+
+    // =========================================================================
+    // MODULE 11: MAIN COCKPIT CONTROLLER & APPLICATION STATE
+    // =========================================================================
+    const App = {
+      lang: 'ckb',
+      map: null,
+      vehicleMarker: null,
+      vehicleEl: null,
+      cameraMarkers: [],
+      nearbyDemoMarkers: [],
+      destinationMarker: null,
+
+      // GPS & Heading State
+      gpsWatchId: null,
+      gpsStatus: 'prompt', // 'prompt' | 'active' | 'denied' | 'unavailable'
+      userLat: DEFAULT_ERBIL.lat,
+      userLng: DEFAULT_ERBIL.lng,
+      hasRealFix: false,
+      gpsAccuracy: null,
+      userHeading: 0,
+      reliableHeading: false,
+      currentSpeedKmh: null,
+
+      // 3D Follow & Navigation State
+      follow3D: true,
+      isNavigating: false,
+      calculatedRoutes: [],
+      selectedRouteIndex: 0,
+      lastRouteCalcFrom: null,
+      selectedCategoryForReport: 'mobile_camera',
+      votedSessionIds: new Set(),
+      deferredInstallPrompt: null,
+
+      init() {
+        CameraRadarProvider.init();
+        VoiceAudioEngine.init();
+        this.setupManifestAndIcons();
+        this.registerServiceWorker();
+        this.initMap();
+        this.bindUIEvents();
+        this.renderReportCategories();
+        this.renderCameraDatabaseList();
+        this.updateCacheStats();
+        this.startGpsTracking(false);
+      },
+
+      // Generates PNG icons dynamically on canvas for iOS Safari / Android PWA compliance
+      setupManifestAndIcons() {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = 192;
+          canvas.height = 192;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = '#060911';
+            ctx.fillRect(0, 0, 192, 192);
+            ctx.strokeStyle = '#06B6D4';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.arc(96, 96, 70, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = '#06B6D4';
+            ctx.beginPath();
+            ctx.moveTo(96, 38);
+            ctx.lineTo(136, 142);
+            ctx.lineTo(96, 120);
+            ctx.lineTo(56, 142);
+            ctx.closePath();
+            ctx.fill();
+            const pngUrl = canvas.toDataURL('image/png');
+            const appleLink = document.getElementById('apple-touch-icon-link');
+            if (appleLink) appleLink.href = pngUrl;
+          }
+        } catch {}
+      },
+
+      registerServiceWorker() {
+        if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+          navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+        }
+      },
+
+      initMap() {
+        const loader = document.getElementById('map-loader');
+        const errBanner = document.getElementById('map-error-banner');
+
+        if (!window.maplibregl) {
+          if (loader) loader.classList.add('hidden');
+          if (errBanner) {
+            errBanner.classList.remove('hidden');
+            document.getElementById('map-error-msg').textContent = 'کتێبخانەی MapLibre GL JS بارنەکرا. تکایە هێڵی ئینتەرنێت بپشکنە.';
+          }
+          return;
+        }
+
+        try {
+          this.map = new window.maplibregl.Map({
+            container: 'map',
+            style: MapStyleProvider.getStyleSpec('dark3d'),
+            center: [this.userLng, this.userLat],
+            zoom: 15.2,
+            pitch: 60,
+            bearing: 0,
+            maxPitch: 75,
+            attributionControl: true
+          });
+
+          this.map.on('load', () => {
+            if (loader) {
+              loader.style.opacity = '0';
+              setTimeout(() => loader.classList.add('hidden'), 300);
+            }
+            this.setupMapOverlayLayers();
+            this.createVehicleMarker();
+            this.refreshMapMarkers();
+            CameraRadarProvider.fetchOverpassInBounds(this.map.getBounds()).then(() => {
+              this.refreshMapMarkers();
+              this.renderCameraDatabaseList();
+            });
+          });
+
+          this.map.on('style.load', () => {
+            this.setupMapOverlayLayers();
+          });
+
+          this.map.on('rotate', () => {
+            const b = this.map.getBearing();
+            const compassSvg = document.getElementById('compass-svg');
+            if (compassSvg) {
+              compassSvg.style.transform = `rotate(${-b}deg)`;
+            }
+          });
+
+          // Exit 3D follow mode if user manually drags the map
+          this.map.on('dragstart', (e) => {
+            if (e && e.originalEvent && this.follow3D) {
+              this.setFollow3D(false);
+            }
+          });
+
+          this.map.on('error', () => {
+            // Non-fatal tile errors are handled gracefully
+          });
+        } catch (err) {
+          if (loader) loader.classList.add('hidden');
+          if (errBanner) errBanner.classList.remove('hidden');
+        }
+      },
+
+      setupMapOverlayLayers() {
+        if (!this.map) return;
+
+        // 1. Route Line Source & Glow Layers
+        if (!this.map.getSource('route-source')) {
+          this.map.addSource('route-source', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: [] }
+          });
+
+          this.map.addLayer({
+            id: 'route-glow',
+            type: 'line',
+            source: 'route-source',
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: {
+              'line-color': '#8B5CF6',
+              'line-width': 12,
+              'line-opacity': 0.38,
+              'line-blur': 4
+            }
+          });
+
+          this.map.addLayer({
+            id: 'route-main',
+            type: 'line',
+            source: 'route-source',
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: {
+              'line-color': '#06B6D4',
+              'line-width': 6,
+              'line-opacity': 0.95
+            }
+          });
+        }
+
+        // 2. Demo Traffic Visualization Source & Layer
+        if (!this.map.getSource('demo-traffic-source')) {
+          this.map.addSource('demo-traffic-source', {
+            type: 'geojson',
+            data: this.getDemoTrafficGeoJSON()
+          });
+
+          this.map.addLayer({
+            id: 'demo-traffic-layer',
+            type: 'line',
+            source: 'demo-traffic-source',
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round',
+              'visibility': document.getElementById('chk-traffic-demo')?.checked ? 'visible' : 'none'
+            },
+            paint: {
+              'line-color': ['get', 'color'],
+              'line-width': 5,
+              'line-opacity': 0.85,
+              'line-dasharray': [2, 1]
+            }
+          });
+        }
+
+        this.updateRouteLayerOnMap();
+      },
+
+      getDemoTrafficGeoJSON() {
+        return {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              properties: { level: 'DEMO قەرەباڵغی زۆر', color: '#EF4444' },
+              geometry: {
+                type: 'LineString',
+                coordinates: [[44.0092, 36.1911], [44.0058, 36.1978], [44.0020, 36.2015]]
+              }
+            },
+            {
+              type: 'Feature',
+              properties: { level: 'DEMO مامناوەند', color: '#F59E0B' },
+              geometry: {
+                type: 'LineString',
+                coordinates: [[44.0020, 36.2015], [43.9980, 36.2090], [43.9942, 36.2182]]
+              }
+            },
+            {
+              type: 'Feature',
+              properties: { level: 'DEMO ئاسایی', color: '#10B981' },
+              geometry: {
+                type: 'LineString',
+                coordinates: [[43.9942, 36.2182], [43.9930, 36.2280], [43.9910, 36.2380]]
+              }
+            }
+          ]
+        };
+      },
+
+      createVehicleMarker() {
+        if (!this.map || this.vehicleMarker) return;
+        const wrap = document.createElement('div');
+        wrap.className = 'vehicle-marker-wrap';
+        wrap.innerHTML = `
+          <div id="vehicle-rotator" class="vehicle-marker-inner">
+            <svg viewBox="0 0 64 64" width="44" height="44" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="28" fill="rgba(6, 182, 212, 0.16)" stroke="#06B6D4" stroke-width="2"/>
+              <path d="M32 10 L48 50 L32 41 L16 50 Z" fill="#06B6D4" stroke="#F8FAFC" stroke-width="2.5" stroke-linejoin="round"/>
+              <circle cx="32" cy="26" r="3.5" fill="#E11D48"/>
+            </svg>
+          </div>
+        `;
+        this.vehicleEl = wrap.querySelector('#vehicle-rotator');
+        this.vehicleMarker = new window.maplibregl.Marker({ element: wrap, anchor: 'center' })
+          .setLngLat([this.userLng, this.userLat])
+          .addTo(this.map);
+      },
+
+      updateVehiclePose(lat, lng, headingDeg, isReliableHeading, speedKmh, sourceLabel) {
+        this.userLat = lat;
+        this.userLng = lng;
+
+        if (isReliableHeading && Number.isFinite(headingDeg)) {
+          this.userHeading = GeoMath.lerpAngle(this.userHeading, headingDeg, 0.3);
+          this.reliableHeading = true;
+        } else {
+          this.reliableHeading = false;
+        }
+
+        if (this.vehicleMarker) {
+          this.vehicleMarker.setLngLat([lng, lat]);
+        }
+        if (this.vehicleEl) {
+          const mapBearing = this.map ? this.map.getBearing() : 0;
+          const relAngle = this.reliableHeading ? (this.userHeading - mapBearing) : 0;
+          this.vehicleEl.style.transform = `rotate(${relAngle}deg)`;
+        }
+
+        // Update Speedometer UI
+        const speedEl = document.getElementById('speed-value');
+        const badgeEl = document.getElementById('speed-source-badge');
+        if (speedEl) {
+          speedEl.textContent = Number.isFinite(speedKmh) ? String(Math.round(speedKmh)) : '--';
+        }
+        if (badgeEl) {
+          badgeEl.textContent = sourceLabel || 'GPS ڕاستەقینە';
+          badgeEl.className = sourceLabel && sourceLabel.includes('SIM')
+            ? 'text-[9px] font-bold text-amber-300 tracking-wide'
+            : 'text-[9px] font-bold text-emerald-400 tracking-wide';
+        }
+
+        // Update 3D Camera Follow
+        if (this.follow3D && this.map) {
+          const camOpts = {
+            center: [lng, lat],
+            pitch: 60,
+            duration: 300
+          };
+          if (this.reliableHeading) {
+            camOpts.bearing = this.userHeading;
+          }
+          this.map.easeTo(camOpts);
+        }
+
+        // Evaluate Proximity Radar
+        const activeRoute = this.calculatedRoutes[this.selectedRouteIndex];
+        const routeCoords = activeRoute && activeRoute.geometry ? activeRoute.geometry.coordinates : null;
+        const alert = ProximityEngine.evaluate(
+          lat,
+          lng,
+          this.reliableHeading ? this.userHeading : null,
+          routeCoords
+        );
+        this.renderProximityAlert(alert);
+
+        // Point-to-Point Session Update
+        if (PointToPointEngine.active) {
+          const p2pMetrics = PointToPointEngine.addGpsSample(lat, lng, this.gpsAccuracy || 8);
+          this.renderP2PMetrics(p2pMetrics, speedKmh);
+        }
+
+        // Active Navigation Progress Update
+        if (this.isNavigating && activeRoute) {
+          this.updateActiveNavigationProgress(lat, lng, activeRoute);
+        }
+      },
+
+      // =======================================================================
+      // LIVE BROWSER GPS TRACKING (`watchPosition`)
+      // =======================================================================
+      startGpsTracking(userInitiated = false) {
+        const permBar = document.getElementById('gps-permission-bar');
+        const permText = document.getElementById('gps-permission-text');
+        const shortEl = document.getElementById('gps-status-short');
+        const dotEl = document.getElementById('gps-indicator-icon');
+        const diagGps = document.getElementById('diag-gps');
+
+        if (!('geolocation' in navigator)) {
+          this.gpsStatus = 'unavailable';
+          if (permText) permText.textContent = 'ئەم وێبگەڕە پشتگیری GPS ناکات. نەخشە لەسەر هەولێر جێگیرکراوە.';
+          if (diagGps) diagGps.textContent = 'Unavailable';
+          return;
+        }
+
+        if (this.gpsWatchId !== null) {
+          navigator.geolocation.clearWatch(this.gpsWatchId);
+        }
+
+        let prevFix = null;
+
+        this.gpsWatchId = navigator.geolocation.watchPosition(
+          (pos) => {
+            // Do not override simulator pose while simulator is actively running
+            if (DriveSimulator.active) return;
+
+            const { latitude, longitude, accuracy, heading, speed } = pos.coords;
+            this.gpsStatus = 'active';
+            this.hasRealFix = true;
+            this.gpsAccuracy = Math.round(accuracy || 0);
+
+            if (permBar) permBar.classList.add('hidden');
+            if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0';
+            if (shortEl) shortEl.textContent = `GPS چالاکە (±${this.gpsAccuracy}m)`;
+            if (diagGps) diagGps.textContent = `Connected (±${this.gpsAccuracy}m)`;
+
+            const accReadout = document.getElementById('heading-accuracy-readout');
+            if (accReadout) accReadout.textContent = `وردی: ±${this.gpsAccuracy}m`;
+
+            // Reject sudden unrealistic GPS jumps (> 500m in < 2s)
+            const now = Date.now();
+            let computedHeading = heading;
+            let computedSpeedKmh = Number.isFinite(speed) && speed >= 0 ? speed * 3.6 : null;
+
+            if (prevFix) {
+              const dist = GeoMath.distanceMeters(prevFix.lat, prevFix.lng, latitude, longitude);
+              const dtSec = Math.max(0.5, (now - prevFix.time) / 1000);
+              if (dist > 500 && dtSec < 2.5) return; // Ignore glitchy jump
+
+              if (!Number.isFinite(computedSpeedKmh) && accuracy <= 35) {
+                computedSpeedKmh = dist > 2.0 ? (dist / dtSec) * 3.6 : 0;
+              }
+              if (!Number.isFinite(computedHeading) && dist > 4.0) {
+                computedHeading = GeoMath.bearingDegrees(prevFix.lat, prevFix.lng, latitude, longitude);
+              }
+            }
+
+            // Stationary threshold: below 3 km/h, freeze heading rotation to prevent jitter
+            const hasReliableCourse =
+              Number.isFinite(computedHeading) &&
+              computedHeading >= 0 &&
+              (computedSpeedKmh === null || computedSpeedKmh >= 3.0);
+
+            prevFix = { lat: latitude, lng: longitude, time: now };
+            this.currentSpeedKmh = computedSpeedKmh;
+
+            this.updateVehiclePose(
+              latitude,
+              longitude,
+              computedHeading,
+              hasReliableCourse,
+              computedSpeedKmh,
+              'GPS ڕاستەقینە'
+            );
+          },
+          (err) => {
+            if (err.code === 1) {
+              this.gpsStatus = 'denied';
+              if (permText) permText.textContent = 'مۆڵەتی GPS ڕەتکرایەوە. نەخشە لەسەر هەولێر دەمێنێتەوە یان دۆخی تاقیکاری بەکاربهێنە.';
+              if (shortEl) shortEl.textContent = 'مۆڵەت نەدرا (هەولێر)';
+              if (diagGps) diagGps.textContent = 'Permission Denied';
+            } else {
+              this.gpsStatus = 'unavailable';
+              if (shortEl) shortEl.textContent = 'هەولێر (بنەڕەتی)';
+              if (diagGps) diagGps.textContent = 'Signal Unavailable / Timeout';
+            }
+            if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0';
+            if (userInitiated) {
+              showToast('نەتوانرا شوێنی GPS وەربگیرێت — تکایە مۆڵەتی شوێن لە وێبگەڕەکەت چالاک بکە.');
+            }
+          },
+          {
+            enableHighAccuracy: true,
+            maximumAge: 3000,
+            timeout: 10000
+          }
+        );
+      },
+
+      setFollow3D(enabled) {
+        this.follow3D = enabled;
+        const btn = document.getElementById('btn-3d-follow');
+        if (btn) {
+          btn.className = enabled
+            ? 'cockpit-glass min-w-[46px] min-h-[46px] px-2.5 rounded-2xl flex flex-col items-center justify-center gap-0.5 text-brand-cyan border-brand-cyan/60 bg-brand-cyan/15 shadow-lg transition'
+            : 'cockpit-glass min-w-[46px] min-h-[46px] px-2.5 rounded-2xl flex flex-col items-center justify-center gap-0.5 text-slate-400 hover:text-white transition';
+        }
+        if (enabled && this.map) {
+          this.map.easeTo({
+            center: [this.userLng, this.userLat],
+            pitch: 60,
+            bearing: this.reliableHeading ? this.userHeading : this.map.getBearing(),
+            duration: 600
+          });
+        }
+      },
+
+      // =======================================================================
+      // MARKERS RENDERING (Cameras, Community Reports, & Demo Nearby Drivers)
+      // =======================================================================
+      refreshMapMarkers() {
+        if (!this.map) return;
+        this.cameraMarkers.forEach((m) => m.remove());
+        this.cameraMarkers = [];
+
+        const records = CameraRadarProvider.getAllActiveRecords();
+        records.forEach((rec) => {
+          const el = document.createElement('button');
+          el.type = 'button';
+          el.className = 'w-9 h-9 rounded-2xl flex items-center justify-center text-xs font-bold shadow-lg border transition transform hover:scale-110';
+          if (rec.isDemo) {
+            el.style.background = 'rgba(15, 23, 42, 0.92)';
+            el.style.borderColor = '#F59E0B';
+            el.style.color = '#FDE68A';
+            el.innerHTML = `<span title="${escapeHtml(rec.category)}">📷</span>`;
+          } else if (rec.isCommunity) {
+            el.style.background = 'rgba(136, 19, 55, 0.92)';
+            el.style.borderColor = '#FB7185';
+            el.style.color = '#FFE4E6';
+            el.innerHTML = `<span>⚠️</span>`;
+          } else {
+            el.style.background = 'rgba(127, 29, 29, 0.94)';
+            el.style.borderColor = '#EF4444';
+            el.style.color = '#FFFFFF';
+            el.innerHTML = `<span>🚨</span>`;
+          }
+
+          const speedText = rec.speedLimit ? `<div class="text-xs text-amber-300 mt-1">سنووری خێرایی پشتڕاستکراو: <b>${rec.speedLimit} km/h</b></div>` : '';
+          const popupHtml = `
+            <div class="text-right min-w-[180px]">
+              <div class="text-[10px] font-bold ${rec.isDemo ? 'text-amber-300' : 'text-brand-cyan'}">${escapeHtml(rec.source)}</div>
+              <div class="text-sm font-bold text-white mt-0.5">${escapeHtml(rec.category)}</div>
+              ${speedText}
+              <div class="text-[10px] text-slate-400 font-mono mt-1">${rec.lat.toFixed(4)}, ${rec.lng.toFixed(4)}</div>
+            </div>
+          `;
+
+          const popup = new window.maplibregl.Popup({ offset: 18 }).setHTML(popupHtml);
+          const marker = new window.maplibregl.Marker({ element: el })
+            .setLngLat([rec.lng, rec.lat])
+            .setPopup(popup)
+            .addTo(this.map);
+
+          this.cameraMarkers.push(marker);
+        });
+      },
+
+      toggleNearbyDemoDrivers(enabled) {
+        this.nearbyDemoMarkers.forEach((m) => m.remove());
+        this.nearbyDemoMarkers = [];
+        if (!enabled || !this.map) return;
+
+        const offsets = [
+          { dLat: 0.004, dLng: -0.003, label: 'شۆفێری تەقلیدی ١ (DEMO)' },
+          { dLat: -0.003, dLng: 0.005, label: 'شۆفێری تەقلیدی ٢ (DEMO)' },
+          { dLat: 0.006, dLng: 0.002, label: 'شۆفێری تەقلیدی ٣ (DEMO)' }
+        ];
+
+        offsets.forEach((o) => {
+          const el = document.createElement('div');
+          el.className = 'px-2 py-1 rounded-xl bg-slate-900/90 border border-amber-400 text-[10px] font-bold text-amber-300 shadow-lg flex items-center gap-1';
+          el.innerHTML = `<span>🚗</span><span>DEMO</span>`;
+          const popup = new window.maplibregl.Popup({ offset: 12 }).setHTML(
+            `<div class="text-xs font-bold text-amber-300">${escapeHtml(o.label)}</div><div class="text-[10px] text-slate-300">ئەمە شۆفێری ڕاستەقینە نییە — تەنها دۆخی تاقیکارییە.</div>`
+          );
+          const m = new window.maplibregl.Marker({ element: el })
+            .setLngLat([this.userLng + o.dLng, this.userLat + o.dLat])
+            .setPopup(popup)
+            .addTo(this.map);
+          this.nearbyDemoMarkers.push(m);
+        });
+      },
+
+      // =======================================================================
+      // PROXIMITY RADAR & COMMUNITY CONFIRMATION RENDERERS
+      // =======================================================================
+      renderProximityAlert(alert) {
+        const card = document.getElementById('radar-alert-card');
+        const confirmCard = document.getElementById('community-confirm-card');
+        if (!card) return;
+
+        if (!alert) {
+          card.classList.add('hidden');
+          if (confirmCard) confirmCard.classList.add('hidden');
+          return;
+        }
+
+        const { record, distance, lifecycle } = alert;
+        card.classList.remove('hidden');
+
+        document.getElementById('radar-alert-title').textContent = record.category;
+        document.getElementById('radar-alert-source').textContent = record.source;
+        document.getElementById('radar-alert-lifecycle').textContent = lifecycle;
+        document.getElementById('radar-alert-dist').textContent = `${distance} مەتر`;
+        document.getElementById('radar-alert-speed-limit').textContent = record.speedLimit ? String(record.speedLimit) : '--';
+
+        const pct = Math.max(5, Math.min(100, Math.round(((700 - distance) / 700) * 100)));
+        document.getElementById('radar-alert-bar').style.width = `${pct}%`;
+
+        // Trigger voice & chime once per lifecycle stage
+        if (!ProximityEngine.announcedApproachingIds.has(record.id) && distance <= 650) {
+          ProximityEngine.announcedApproachingIds.add(record.id);
+          VoiceAudioEngine.playChime('radar');
+          VoiceAudioEngine.speak(`ئاگاداربە، ${record.category} لە پێشەوەیە لە دووری ${distance} مەتر.`);
+        } else if (!ProximityEngine.announcedNearbyIds.has(record.id) && distance <= 200) {
+          ProximityEngine.announcedNearbyIds.add(record.id);
+          VoiceAudioEngine.playChime('radar');
+        }
+
+        // Show Community Confirmation Card ("هێشتا لێرەیە؟") for community/demo reports within 450m
+        if (confirmCard && (record.isCommunity || record.isDemo) && distance <= 450 && !this.votedSessionIds.has(record.id)) {
+          confirmCard.classList.remove('hidden');
+          confirmCard.dataset.recordId = record.id;
+          document.getElementById('confirm-report-label').textContent = record.category;
+          const votes = StorageService.get(`votes_${record.id}`, { yes: 1, no: 0 });
+          document.getElementById('confirm-report-votes').textContent = `پشتڕاستکردنەوەی ناوخۆیی: ${votes.yes}`;
+        } else if (confirmCard) {
+          confirmCard.classList.add('hidden');
+        }
+      },
+
+      // =======================================================================
+      // ROUTING & TURN-BY-TURN NAVIGATION WORKFLOW
+      // =======================================================================
+      async selectDestinationAndRoute(destLat, destLng, destName) {
+        if (this.destinationMarker) this.destinationMarker.remove();
+        if (this.map) {
+          const el = document.createElement('div');
+          el.className = 'w-8 h-8 rounded-full bg-brand-cyan/25 border-2 border-brand-cyan flex items-center justify-center text-sm shadow-xl';
+          el.innerHTML = '🏁';
+          this.destinationMarker = new window.maplibregl.Marker({ element: el })
+            .setLngLat([destLng, destLat])
+            .addTo(this.map);
+        }
+
+        const routeCard = document.getElementById('route-overview-card');
+        if (routeCard) {
+          routeCard.classList.remove('hidden');
+          document.getElementById('route-dest-title').textContent = destName || 'مەبەستی هەڵبژێردراو';
+          document.getElementById('route-metric-duration').textContent = 'لە هەژمارکردندایە...';
+          document.getElementById('route-metric-distance').textContent = '...';
+        }
+
+        try {
+          const routes = await RoutingProvider.calculateRoutes(this.userLat, this.userLng, destLat, destLng);
+          this.calculatedRoutes = routes;
+          this.selectedRouteIndex = 0;
+          this.lastRouteCalcFrom = { lat: this.userLat, lng: this.userLng, destLat, destLng, destName };
+          this.renderRouteOverviewUI();
+          this.updateRouteLayerOnMap(true);
+        } catch (err) {
+          showToast('کێشە لە هەژمارکردنی ڕێڕەو (OSRM). تکایە دووبارە هەوڵبدەرەوە.');
+          document.getElementById('route-metric-duration').textContent = 'بەردەست نییە';
+        }
+      },
+
+      renderRouteOverviewUI() {
+        const route = this.calculatedRoutes[this.selectedRouteIndex];
+        if (!route) return;
+
+        const mins = Math.max(1, Math.round(route.durationSeconds / 60));
+        const km = (route.distanceMeters / 1000).toFixed(1);
+        const etaDate = new Date(Date.now() + route.durationSeconds * 1000);
+        const etaStr = etaDate.toTimeString().slice(0, 5);
+
+        document.getElementById('route-metric-duration').textContent = `${mins} خولەک`;
+        document.getElementById('route-metric-distance').textContent = `${km} km`;
+        document.getElementById('route-metric-eta').textContent = etaStr;
+
+        // Render alternatives if > 1 returned by OSRM
+        const altBar = document.getElementById('route-alternatives-bar');
+        if (altBar) {
+          if (this.calculatedRoutes.length > 1) {
+            altBar.classList.remove('hidden');
+            altBar.innerHTML = this.calculatedRoutes.map((r, i) => {
+              const rMin = Math.max(1, Math.round(r.durationSeconds / 60));
+              const rKm = (r.distanceMeters / 1000).toFixed(1);
+              const activeCls = i === this.selectedRouteIndex
+                ? 'bg-brand-cyan text-slate-950 font-bold'
+                : 'bg-slate-900 text-slate-300 border border-slate-700';
+              return `<button type="button" data-route-idx="${i}" class="route-alt-btn px-3 py-1.5 rounded-xl text-xs whitespace-nowrap ${activeCls}">ڕێگای ${i + 1}: ${rMin} خولەک (${rKm} km)</button>`;
+            }).join('');
+            altBar.querySelectorAll('.route-alt-btn').forEach((btn) => {
+              btn.addEventListener('click', () => {
+                this.selectedRouteIndex = parseInt(btn.dataset.routeIdx, 10) || 0;
+                this.renderRouteOverviewUI();
+                this.updateRouteLayerOnMap(false);
+              });
+            });
+          } else {
+            altBar.classList.add('hidden');
+          }
+        }
+      },
+
+      updateRouteLayerOnMap(fitBounds = false) {
+        if (!this.map || !this.map.getSource('route-source')) return;
+        const route = this.calculatedRoutes[this.selectedRouteIndex];
+        if (!route || !route.geometry) {
+          this.map.getSource('route-source').setData({ type: 'FeatureCollection', features: [] });
+          return;
+        }
+
+        this.map.getSource('route-source').setData({
+          type: 'Feature',
+          properties: {},
+          geometry: route.geometry
+        });
+
+        if (fitBounds && route.geometry.coordinates.length > 1) {
+          const bounds = new window.maplibregl.LngLatBounds();
+          route.geometry.coordinates.forEach((c) => bounds.extend(c));
+          this.map.fitBounds(bounds, { padding: { top: 110, bottom: 220, left: 60, right: 70 }, duration: 900 });
+        }
+      },
+
+      startNavigation() {
+        const route = this.calculatedRoutes[this.selectedRouteIndex];
+        if (!route) return;
+        this.isNavigating = true;
+        this.setFollow3D(true);
+
+        document.getElementById('nav-maneuver-banner')?.classList.remove('hidden');
+        document.getElementById('btn-start-navigation')?.classList.add('hidden');
+        document.getElementById('btn-stop-navigation')?.classList.remove('hidden');
+
+        VoiceAudioEngine.playChime('nav');
+        if (route.steps && route.steps[0]) {
+          VoiceAudioEngine.speak(route.steps[0].instruction, true);
+        }
+        this.updateActiveNavigationProgress(this.userLat, this.userLng, route);
+      },
+
+      stopNavigation() {
+        this.isNavigating = false;
+        document.getElementById('nav-maneuver-banner')?.classList.add('hidden');
+        document.getElementById('btn-start-navigation')?.classList.remove('hidden');
+        document.getElementById('btn-stop-navigation')?.classList.add('hidden');
+      },
+
+      updateActiveNavigationProgress(lat, lng, route) {
+        if (!route || !route.steps || route.steps.length === 0) return;
+
+        // Find closest upcoming step
+        let nextStep = route.steps[0];
+        let minStepDist = Infinity;
+        for (const s of route.steps) {
+          const [sLng, sLat] = s.location;
+          const d = GeoMath.distanceMeters(lat, lng, sLat, sLng);
+          if (d < minStepDist && d > 15) {
+            minStepDist = d;
+            nextStep = s;
+          }
+        }
+
+        const distText = minStepDist < 1000
+          ? `${Math.round(minStepDist)} m`
+          : `${(minStepDist / 1000).toFixed(1)} km`;
+
+        document.getElementById('nav-next-dist').textContent = distText;
+        document.getElementById('nav-street-name').textContent = nextStep.name || 'ڕێگای سەرەکی';
+        document.getElementById('nav-instruction-text').textContent = nextStep.instruction;
+
+        // Remaining distance to destination
+        const coords = route.geometry.coordinates;
+        const [endLng, endLat] = coords[coords.length - 1];
+        const remMeters = GeoMath.distanceMeters(lat, lng, endLat, endLng);
+        document.getElementById('nav-rem-dist').textContent = `${(remMeters / 1000).toFixed(1)} km`;
+
+        const estSec = (remMeters / Math.max(1, route.distanceMeters)) * route.durationSeconds;
+        const eta = new Date(Date.now() + estSec * 1000).toTimeString().slice(0, 5);
+        document.getElementById('nav-eta-time').textContent = eta;
+
+        // Check route deviation (> 120m off route when not simulating, with cooldown)
+        if (!DriveSimulator.active && this.lastRouteCalcFrom) {
+          const offTrack = GeoMath.pointToRouteDistance(lat, lng, coords);
+          const now = Date.now();
+          if (offTrack > 120 && (!this._lastRecalcAt || now - this._lastRecalcAt > 20000)) {
+            this._lastRecalcAt = now;
+            VoiceAudioEngine.speak('ڕێگاکە نوێ دەکرێتەوە.');
+            this.selectDestinationAndRoute(
+              this.lastRouteCalcFrom.destLat,
+              this.lastRouteCalcFrom.destLng,
+              this.lastRouteCalcFrom.destName
+            );
+          }
+        }
+      },
+
+      // =======================================================================
+      // UI LISTS & SHEETS RENDERING
+      // =======================================================================
+      openSheet(sheetId) {
+        ['sheet-search', 'sheet-radar', 'sheet-report', 'sheet-settings'].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.classList.toggle('hidden', id !== sheetId);
+        });
+      },
+
+      renderCameraDatabaseList() {
+        const container = document.getElementById('camera-db-list');
+        if (!container) return;
+        const records = CameraRadarProvider.getAllActiveRecords();
+        if (records.length === 0) {
+          container.innerHTML = `<div class="py-6 text-center text-xs text-slate-400">هیچ کامێرایەک لەم ناوچەیەدا تۆمار نەکراوە.</div>`;
+          return;
+        }
+
+        container.innerHTML = records.map((rec) => {
+          const distKm = (GeoMath.distanceMeters(this.userLat, this.userLng, rec.lat, rec.lng) / 1000).toFixed(1);
+          const speedBadge = rec.speedLimit
+            ? `<span class="text-amber-300 font-bold">${rec.speedLimit} km/h</span> · `
+            : '';
+          return `
+            <div class="py-2.5 flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="text-xs font-bold text-white truncate">${escapeHtml(rec.category)}</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">
+                  ${speedBadge}<span>${escapeHtml(rec.source)}</span> · <span class="tabular-nums">${distKm} km</span>
+                </div>
+              </div>
+              <button type="button" data-focus-lat="${rec.lat}" data-focus-lng="${rec.lng}" class="cam-focus-btn min-h-[36px] px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-brand-cyan font-semibold shrink-0">
+                پیشاندان لە ماپ
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        container.querySelectorAll('.cam-focus-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const lat = parseFloat(btn.dataset.focusLat);
+            const lng = parseFloat(btn.dataset.focusLng);
+            this.openSheet(null);
+            this.setFollow3D(false);
+            this.map?.flyTo({ center: [lng, lat], zoom: 16, pitch: 55, duration: 900 });
+          });
+        });
+      },
+
+      renderReportCategories() {
+        const grid = document.getElementById('report-categories-grid');
+        if (!grid) return;
+        grid.innerHTML = REPORT_CATEGORIES.map((cat) => {
+          const active = cat.id === this.selectedCategoryForReport;
+          const cls = active
+            ? 'bg-brand-crimson/25 border-brand-crimson text-white font-bold'
+            : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:bg-slate-800';
+          return `
+            <button type="button" data-cat-id="${cat.id}" class="report-cat-btn min-h-[54px] p-2.5 rounded-2xl border flex items-center gap-2 text-right text-xs transition ${cls}">
+              <span class="text-lg shrink-0">${cat.icon}</span>
+              <span class="leading-tight">${escapeHtml(cat.label)}</span>
+            </button>
+          `;
+        }).join('');
+
+        grid.querySelectorAll('.report-cat-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            this.selectedCategoryForReport = btn.dataset.catId;
+            this.renderReportCategories();
+          });
+        });
+      },
+
+      renderP2PMetrics(metrics, currentSpeedKmh) {
+        const hud = document.getElementById('p2p-active-hud');
+        if (!metrics) {
+          if (hud) hud.classList.add('hidden');
+          return;
+        }
+        if (hud) hud.classList.remove('hidden');
+
+        const avgStr = `${metrics.avgSpeedKmh.toFixed(1)} km/h`;
+        const curStr = Number.isFinite(currentSpeedKmh) ? `${Math.round(currentSpeedKmh)} km/h` : '-- km/h';
+        const remStr = `${metrics.remainingKm.toFixed(2)} km`;
+        const limStr = metrics.verifiedLimit ? `${metrics.verifiedLimit} km/h` : 'پشتڕاستنەکراو';
+
+        const mm = String(Math.floor(metrics.elapsedSec / 60)).padStart(2, '0');
+        const ss = String(metrics.elapsedSec % 60).padStart(2, '0');
+
+        document.getElementById('p2p-hud-avg').textContent = avgStr;
+        document.getElementById('p2p-hud-cur').textContent = curStr;
+        document.getElementById('p2p-hud-rem').textContent = remStr;
+        document.getElementById('p2p-hud-limit').textContent = limStr;
+        document.getElementById('p2p-hud-status').textContent = metrics.isSimulation ? 'تاقیکاری DEMO' : 'GPSی ڕاستەوخۆ';
+
+        document.getElementById('p2p-panel-dist').textContent = `${metrics.distanceKm.toFixed(2)} km`;
+        document.getElementById('p2p-panel-time').textContent = `${mm}:${ss}`;
+        document.getElementById('p2p-panel-avg').textContent = avgStr;
+      },
+
+      updateCacheStats() {
+        const el = document.getElementById('cache-stats-label');
+        if (!el) return;
+        el.textContent = `کامێرای OSM لە کاش: ${CameraRadarProvider.osmCameras.length} · ڕاپۆرتی ناوخۆیی: ${CameraRadarProvider.communityReports.length}`;
+      },
+
+      applyLanguage(lang) {
+        if (!I18N[lang]) return;
+        this.lang = lang;
+        const dict = I18N[lang];
+        document.documentElement.lang = lang;
+        document.documentElement.dir = dict.dir;
+
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+          const key = el.getAttribute('data-i18n');
+          if (dict[key]) el.textContent = dict[key];
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+          const key = el.getAttribute('data-i18n-placeholder');
+          if (dict[key]) el.setAttribute('placeholder', dict[key]);
+        });
+        document.querySelectorAll('.lang-btn').forEach((btn) => {
+          const isCurrent = btn.getAttribute('data-lang') === lang;
+          btn.className = isCurrent
+            ? 'lang-btn px-2.5 py-1.5 rounded-lg bg-brand-cyan text-slate-950 font-bold text-xs'
+            : 'lang-btn px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white text-xs';
+        });
+      },
+
+      // =======================================================================
+      // EVENT LISTENERS FOR ALL CONTROLS
+      // =======================================================================
+      bindUIEvents() {
+        // Online / Offline Connectivity Listeners
+        const updateOnlineBanner = () => {
+          document.getElementById('offline-banner')?.classList.toggle('hidden', navigator.onLine);
+        };
+        window.addEventListener('online', updateOnlineBanner);
+        window.addEventListener('offline', updateOnlineBanner);
+        updateOnlineBanner();
+
+        // Unlock Web Audio Context on first touch/click
+        const unlockAudio = () => {
+          VoiceAudioEngine.ensureAudioContext();
+          window.removeEventListener('pointerdown', unlockAudio);
+        };
+        window.addEventListener('pointerdown', unlockAudio, { once: true });
+
+        // Bottom Navigation Bar
+        document.querySelectorAll('.bottom-nav-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const tab = btn.dataset.navTab;
+            document.querySelectorAll('.bottom-nav-btn').forEach((b) => {
+              b.className = b === btn
+                ? 'bottom-nav-btn min-h-[48px] rounded-2xl flex flex-col items-center justify-center text-brand-cyan font-bold transition'
+                : 'bottom-nav-btn min-h-[48px] rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white font-medium transition';
+            });
+
+            if (tab === 'map') this.openSheet(null);
+            else if (tab === 'search') {
+              this.openSheet('sheet-search');
+              document.getElementById('search-input')?.focus();
+            } else if (tab === 'radar') {
+              this.renderCameraDatabaseList();
+              this.openSheet('sheet-radar');
+            } else if (tab === 'report') {
+              this.prepareReportPreview();
+              this.openSheet('sheet-report');
+            } else if (tab === 'settings') {
+              this.updateCacheStats();
+              this.openSheet('sheet-settings');
+            }
+          });
+        });
+
+        // Close Sheet Buttons
+        document.querySelectorAll('[data-close-sheet]').forEach((btn) => {
+          btn.addEventListener('click', () => this.openSheet(null));
+        });
+
+        // GPS Enable & Status Buttons
+        document.getElementById('btn-enable-gps')?.addEventListener('click', () => this.startGpsTracking(true));
+        document.getElementById('btn-gps-status')?.addEventListener('click', () => this.startGpsTracking(true));
+        document.getElementById('btn-hide-gps-bar')?.addEventListener('click', () => {
+          document.getElementById('gps-permission-bar')?.classList.add('hidden');
+        });
+
+        // Retry Map Button
+        document.getElementById('btn-retry-map')?.addEventListener('click', () => {
+          document.getElementById('map-error-banner')?.classList.add('hidden');
+          this.initMap();
+        });
+
+        // 3D Follow, Recenter, Compass, Zoom
+        document.getElementById('btn-3d-follow')?.addEventListener('click', () => {
+          this.setFollow3D(!this.follow3D);
+        });
+        document.getElementById('btn-recenter')?.addEventListener('click', () => {
+          this.setFollow3D(true);
+        });
+        document.getElementById('btn-compass')?.addEventListener('click', () => {
+          this.map?.easeTo({ bearing: 0, pitch: 0, duration: 500 });
+        });
+        document.getElementById('btn-zoom-in')?.addEventListener('click', () => this.map?.zoomIn());
+        document.getElementById('btn-zoom-out')?.addEventListener('click', () => this.map?.zoomOut());
+
+        // Map Style Selector Popover & Cycle
+        const styleModal = document.getElementById('style-selector-modal');
+        document.getElementById('btn-style-cycle')?.addEventListener('click', () => {
+          styleModal?.classList.toggle('hidden');
+        });
+        document.getElementById('btn-close-style-modal')?.addEventListener('click', () => {
+          styleModal?.classList.add('hidden');
+        });
+        document.querySelectorAll('.style-opt-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const styleId = btn.dataset.styleId;
+            this.switchMapStyle(styleId);
+            styleModal?.classList.add('hidden');
+          });
+        });
+        document.getElementById('settings-style-select')?.addEventListener('change', (e) => {
+          this.switchMapStyle(e.target.value);
+        });
+
+        // Voice / Mute Button
+        document.getElementById('btn-voice-toggle')?.addEventListener('click', () => {
+          VoiceAudioEngine.muted = !VoiceAudioEngine.muted;
+          VoiceAudioEngine.savePrefs();
+          document.getElementById('icon-voice-on')?.classList.toggle('hidden', VoiceAudioEngine.muted);
+          document.getElementById('icon-voice-off')?.classList.toggle('hidden', !VoiceAudioEngine.muted);
+          showToast(VoiceAudioEngine.muted ? 'دەنگی ڕێنمایی بێدەنگ کرا' : 'دەنگی ڕێنمایی چالاک کرا');
+        });
+
+        // Search Input Debounce & Form Submit
+        let searchTimer = null;
+        const searchInput = document.getElementById('search-input');
+        const clearBtn = document.getElementById('btn-clear-search');
+
+        const performSearch = async (query) => {
+          const q = query.trim();
+          if (q.length < 2) return;
+          this.openSheet('sheet-search');
+          const spinner = document.getElementById('search-spinner');
+          const resContainer = document.getElementById('search-results-container');
+          spinner?.classList.remove('hidden');
+          if (resContainer) {
+            resContainer.innerHTML = `<div class="py-6 text-center text-xs text-brand-cyan">لە گەڕاندایە لە کوردستان و عێراق...</div>`;
+          }
+
+          try {
+            const results = await GeocodingProvider.search(q);
+            spinner?.classList.add('hidden');
+            if (!resContainer) return;
+            if (results.length === 0) {
+              resContainer.innerHTML = `<div class="py-6 text-center text-xs text-slate-400">هیچ ئەنجامێک نەدۆزرایەوە بۆ "${escapeHtml(q)}".</div>`;
+              return;
+            }
+            resContainer.innerHTML = results.map((r) => `
+              <div class="py-2.5 flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="text-xs font-bold text-white truncate">${escapeHtml(r.name)}</div>
+                  <div class="text-[11px] text-slate-400 truncate">${escapeHtml(r.displayName)}</div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button type="button" data-lat="${r.lat}" data-lng="${r.lng}" data-name="${escapeHtml(r.name)}" class="search-route-btn min-h-[36px] px-3 rounded-xl bg-brand-cyan text-slate-950 font-bold text-xs">
+                    ڕێگا (Route)
+                  </button>
+                </div>
+              </div>
+            `).join('');
+
+            resContainer.querySelectorAll('.search-route-btn').forEach((b) => {
+              b.addEventListener('click', () => {
+                const lat = parseFloat(b.dataset.lat);
+                const lng = parseFloat(b.dataset.lng);
+                const name = b.dataset.name;
+                this.openSheet(null);
+                this.selectDestinationAndRoute(lat, lng, name);
+              });
+            });
+          } catch (err) {
+            spinner?.classList.add('hidden');
+            if (resContainer && err.name !== 'AbortError') {
+              resContainer.innerHTML = `<div class="py-6 text-center text-xs text-rose-400">کێشە لە پەیوەستبوون بە خزمەتگوزاری گەڕانی Nominatim.</div>`;
+            }
+          }
+        };
+
+        searchInput?.addEventListener('input', (e) => {
+          const val = e.target.value;
+          clearBtn?.classList.toggle('hidden', !val);
+          clearTimeout(searchTimer);
+          if (val.trim().length >= 3) {
+            searchTimer = setTimeout(() => performSearch(val), 550);
+          }
+        });
+
+        document.getElementById('search-form')?.addEventListener('submit', (e) => {
+          e.preventDefault();
+          clearTimeout(searchTimer);
+          if (searchInput) performSearch(searchInput.value);
+        });
+
+        clearBtn?.addEventListener('click', () => {
+          if (searchInput) searchInput.value = '';
+          clearBtn.classList.add('hidden');
+        });
+
+        // Quick Category Buttons
+        document.querySelectorAll('.quick-cat-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const q = btn.dataset.quickQuery;
+            if (searchInput) searchInput.value = q;
+            performSearch(q);
+          });
+        });
+
+        // Direct Coordinate Entry
+        document.getElementById('btn-go-coords')?.addEventListener('click', () => {
+          const val = document.getElementById('coord-input')?.value || '';
+          const parsed = GeocodingProvider.parseCoordinates(val);
+          if (!parsed) {
+            showToast('تکایە پۆتان بە شێوەی دروست بنووسە، بۆ نموونە: 36.1911, 44.0092');
+            return;
+          }
+          this.openSheet(null);
+          this.selectDestinationAndRoute(parsed.lat, parsed.lng, parsed.name);
+        });
+
+        // Route Overview Controls
+        document.getElementById('btn-close-route-card')?.addEventListener('click', () => {
+          this.stopNavigation();
+          document.getElementById('route-overview-card')?.classList.add('hidden');
+        });
+        document.getElementById('btn-start-navigation')?.addEventListener('click', () => {
+          this.startNavigation();
+        });
+        document.getElementById('btn-stop-navigation')?.addEventListener('click', () => {
+          this.stopNavigation();
+        });
+        document.getElementById('btn-sim-this-route')?.addEventListener('click', () => {
+          const select = document.getElementById('sim-route-select');
+          if (select) select.value = 'active_route';
+          this.launchDriveSimulator('active_route');
+        });
+
+        // Radar Alert Dismiss & Community Confirmation Voting
+        document.getElementById('btn-dismiss-radar')?.addEventListener('click', () => {
+          ProximityEngine.dismissCurrent();
+          this.renderProximityAlert(null);
+        });
+
+        const handleCommunityVote = (isYes) => {
+          const card = document.getElementById('community-confirm-card');
+          const recId = card?.dataset.recordId;
+          if (!recId || this.votedSessionIds.has(recId)) return;
+          this.votedSessionIds.add(recId);
+          const current = StorageService.get(`votes_${recId}`, { yes: 1, no: 0 });
+          if (isYes) current.yes += 1;
+          else current.no += 1;
+          StorageService.set(`votes_${recId}`, current);
+          card.classList.add('hidden');
+          showToast(isYes ? 'سوپاس! پشتڕاستکردنەوەکەت لەم ئامێرەدا تۆمارکرا.' : 'سوپاس! دەنگەکەت تۆمارکرا.');
+        };
+        document.getElementById('btn-vote-yes')?.addEventListener('click', () => handleCommunityVote(true));
+        document.getElementById('btn-vote-no')?.addEventListener('click', () => handleCommunityVote(false));
+
+        // Radar Sheet Tabs & Overpass Refresh
+        document.getElementById('tab-radar-list')?.addEventListener('click', () => {
+          document.getElementById('radar-subview-list')?.classList.remove('hidden');
+          document.getElementById('radar-subview-p2p')?.classList.add('hidden');
+          document.getElementById('tab-radar-list').className = 'flex-1 min-h-[38px] rounded-xl bg-brand-cyan text-slate-950 font-bold text-xs transition';
+          document.getElementById('tab-radar-p2p').className = 'flex-1 min-h-[38px] rounded-xl text-slate-300 hover:text-white font-semibold text-xs transition';
+        });
+        document.getElementById('tab-radar-p2p')?.addEventListener('click', () => {
+          document.getElementById('radar-subview-list')?.classList.add('hidden');
+          document.getElementById('radar-subview-p2p')?.classList.remove('hidden');
+          document.getElementById('tab-radar-p2p').className = 'flex-1 min-h-[38px] rounded-xl bg-brand-cyan text-slate-950 font-bold text-xs transition';
+          document.getElementById('tab-radar-list').className = 'flex-1 min-h-[38px] rounded-xl text-slate-300 hover:text-white font-semibold text-xs transition';
+        });
+
+        document.getElementById('btn-fetch-osm-cameras')?.addEventListener('click', async () => {
+          if (!this.map) return;
+          CameraRadarProvider.lastOverpassFetchAt = 0;
+          await CameraRadarProvider.fetchOverpassInBounds(this.map.getBounds());
+          this.refreshMapMarkers();
+          this.renderCameraDatabaseList();
+          this.updateCacheStats();
+        });
+
+        document.getElementById('chk-show-demo-cameras')?.addEventListener('change', (e) => {
+          CameraRadarProvider.showDemoRecords = e.target.checked;
+          this.refreshMapMarkers();
+          this.renderCameraDatabaseList();
+        });
+
+        // Point-to-Point Average Speed Controls
+        document.getElementById('btn-p2p-set-start')?.addEventListener('click', () => {
+          const c = this.map ? this.map.getCenter() : { lat: this.userLat, lng: this.userLng };
+          const sLat = this.hasRealFix ? this.userLat : c.lat;
+          const sLng = this.hasRealFix ? this.userLng : c.lng;
+          this._tempP2PStart = { lat: sLat, lng: sLng };
+          document.getElementById('p2p-start-label').textContent = `${sLat.toFixed(4)}, ${sLng.toFixed(4)}`;
+          showToast('خاڵی دەستپێک دیاریکرا. ئێستا خاڵی کۆتایی دیاری بکە.');
+        });
+
+        document.getElementById('btn-p2p-set-end')?.addEventListener('click', () => {
+          const c = this.map ? this.map.getCenter() : { lat: this.userLat + 0.02, lng: this.userLng };
+          const start = this._tempP2PStart || { lat: this.userLat, lng: this.userLng };
+          document.getElementById('p2p-end-label').textContent = `${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}`;
+          PointToPointEngine.startSession(start.lat, start.lng, c.lat, c.lng, null, false);
+          this.renderP2PMetrics(PointToPointEngine.getMetrics(this.userLat, this.userLng), this.currentSpeedKmh);
+          showToast('پێوانەی تێکڕای خێرایی خاڵ بۆ خاڵ دەستیپێکرد.');
+        });
+
+        document.getElementById('btn-p2p-sim-demo')?.addEventListener('click', () => {
+          const sLat = 36.2045, sLng = 44.0005;
+          const eLat = 36.2280, eLng = 43.9930;
+          document.getElementById('p2p-start-label').textContent = `${sLat.toFixed(4)}, ${sLng.toFixed(4)} (DEMO)`;
+          document.getElementById('p2p-end-label').textContent = `${eLat.toFixed(4)}, ${eLng.toFixed(4)} (DEMO)`;
+          PointToPointEngine.startSession(sLat, sLng, eLat, eLng, 100, true);
+          this.openSheet(null);
+          this.launchDriveSimulator('erbil_120m');
+        });
+
+        document.getElementById('btn-p2p-reset')?.addEventListener('click', () => {
+          PointToPointEngine.stop();
+          this.renderP2PMetrics(null, null);
+          document.getElementById('p2p-start-label').textContent = 'دیاری نەکراوە';
+          document.getElementById('p2p-end-label').textContent = 'دیاری نەکراوە';
+        });
+        document.getElementById('btn-p2p-stop-hud')?.addEventListener('click', () => {
+          PointToPointEngine.stop();
+          this.renderP2PMetrics(null, null);
+        });
+
+        // Floating Report Button & Report Submission
+        document.getElementById('btn-floating-report')?.addEventListener('click', () => {
+          this.prepareReportPreview();
+          this.openSheet('sheet-report');
+        });
+
+        document.getElementById('btn-report-use-gps')?.addEventListener('click', () => {
+          this.startGpsTracking(true);
+          this.prepareReportPreview(true);
+        });
+
+        document.getElementById('btn-submit-report')?.addEventListener('click', () => {
+          const catObj = REPORT_CATEGORIES.find((c) => c.id === this.selectedCategoryForReport) || REPORT_CATEGORIES[0];
+          const note = document.getElementById('report-note-input')?.value.trim() || '';
+          const rawSpeed = parseInt(document.getElementById('report-speed-input')?.value || '', 10);
+          const speedLimit = Number.isFinite(rawSpeed) && rawSpeed >= 20 && rawSpeed <= 140 ? rawSpeed : null;
+
+          const coords = this._reportPreviewCoords || { lat: this.userLat, lng: this.userLng };
+          const newRec = {
+            id: `local_rep_${Date.now()}`,
+            lat: coords.lat,
+            lng: coords.lng,
+            category: note ? `${catObj.label} (${note})` : catObj.label,
+            source: 'تۆماری ناوخۆیی (Unsynced Local Prototype)',
+            isDemo: false,
+            isCommunity: true,
+            verified: false,
+            reliability: 70,
+            speedLimit,
+            updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+          };
+
+          CameraRadarProvider.addCommunityReport(newRec);
+          this.refreshMapMarkers();
+          this.renderCameraDatabaseList();
+          this.updateCacheStats();
+
+          const fb = document.getElementById('report-feedback-msg');
+          if (fb) {
+            fb.className = 'rounded-xl p-2.5 text-xs font-semibold bg-emerald-950/80 border border-emerald-500/40 text-emerald-200';
+            fb.textContent = 'ڕاپۆرتەکەت وەک تۆماری ناوخۆیی لەسەر نەخشە دانرا.';
+            fb.classList.remove('hidden');
+            setTimeout(() => fb.classList.add('hidden'), 3000);
+          }
+          showToast('ڕاپۆرتەکەت بە سەرکەوتوویی لەسەر نەخشە دانرا.');
+        });
+
+        // Drive Simulator ("لێخوڕینی تاقیکاری") Controls
+        document.getElementById('btn-open-simulator')?.addEventListener('click', () => {
+          const deck = document.getElementById('simulator-deck');
+          if (deck && !deck.classList.contains('hidden')) {
+            this.stopDriveSimulator();
+          } else {
+            const presetKey = document.getElementById('sim-route-select')?.value || 'erbil_120m';
+            this.launchDriveSimulator(presetKey);
+          }
+        });
+
+        document.getElementById('sim-route-select')?.addEventListener('change', (e) => {
+          this.launchDriveSimulator(e.target.value);
+        });
+
+        document.getElementById('sim-speed-slider')?.addEventListener('input', (e) => {
+          const spd = parseInt(e.target.value, 10) || 0;
+          DriveSimulator.speedKmh = spd;
+          document.getElementById('sim-speed-label').textContent = `${spd} km/h`;
+        });
+
+        document.getElementById('btn-sim-pause')?.addEventListener('click', () => {
+          DriveSimulator.paused = !DriveSimulator.paused;
+          document.getElementById('btn-sim-pause').textContent = DriveSimulator.paused
+            ? 'بەردەوامبوون (Resume)'
+            : 'وەستاندنی کاتی (Pause)';
+        });
+
+        document.getElementById('btn-sim-restart')?.addEventListener('click', () => {
+          DriveSimulator.restart();
+          document.getElementById('btn-sim-pause').textContent = 'وەستاندنی کاتی (Pause)';
+        });
+
+        document.getElementById('btn-sim-exit')?.addEventListener('click', () => {
+          this.stopDriveSimulator();
+        });
+
+        // Settings Screen Controls
+        document.querySelectorAll('.lang-btn').forEach((btn) => {
+          btn.addEventListener('click', () => this.applyLanguage(btn.dataset.lang));
+        });
+
+        document.getElementById('chk-tts-enabled')?.addEventListener('change', (e) => {
+          VoiceAudioEngine.ttsEnabled = e.target.checked;
+          VoiceAudioEngine.savePrefs();
+        });
+        document.getElementById('chk-chime-enabled')?.addEventListener('change', (e) => {
+          VoiceAudioEngine.chimeEnabled = e.target.checked;
+          VoiceAudioEngine.savePrefs();
+        });
+        document.getElementById('slider-volume')?.addEventListener('input', (e) => {
+          VoiceAudioEngine.volume = parseFloat(e.target.value);
+          VoiceAudioEngine.savePrefs();
+        });
+        document.getElementById('btn-test-voice')?.addEventListener('click', () => {
+          VoiceAudioEngine.speak('لە ٣٠٠ مەتر دواییدا بۆ ڕاست وەرچەرخە. ئاگاداربە، کامێرای خێرایی لە پێشەوەیە.', true);
+        });
+        document.getElementById('btn-test-chime')?.addEventListener('click', () => {
+          VoiceAudioEngine.playChime('radar');
+        });
+
+        document.getElementById('chk-nearby-demo')?.addEventListener('change', (e) => {
+          this.toggleNearbyDemoDrivers(e.target.checked);
+        });
+
+        document.getElementById('chk-traffic-demo')?.addEventListener('change', (e) => {
+          const vis = e.target.checked ? 'visible' : 'none';
+          if (this.map && this.map.getLayer('demo-traffic-layer')) {
+            this.map.setLayoutProperty('demo-traffic-layer', 'visibility', vis);
+          }
+          document.getElementById('diag-traffic').textContent = e.target.checked
+            ? 'DEMO Visualization Active'
+            : 'Unavailable (Demo Mode Optional)';
+        });
+
+        document.getElementById('btn-clear-cache')?.addEventListener('click', () => {
+          StorageService.clearAll();
+          CameraRadarProvider.osmCameras = [];
+          CameraRadarProvider.communityReports = [];
+          this.refreshMapMarkers();
+          this.renderCameraDatabaseList();
+          this.updateCacheStats();
+          showToast('هەموو داتای پاشەکەوتکراوی ناوخۆیی سڕایەوە.');
+        });
+
+        // PWA Install Event Handling
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          this.deferredInstallPrompt = e;
+          const topBtn = document.getElementById('btn-pwa-install-top');
+          if (topBtn) {
+            topBtn.classList.remove('hidden');
+            topBtn.classList.add('flex');
+          }
+        });
+
+        const triggerPwaInstall = async () => {
+          if (this.deferredInstallPrompt) {
+            this.deferredInstallPrompt.prompt();
+            await this.deferredInstallPrompt.userChoice;
+            this.deferredInstallPrompt = null;
+            document.getElementById('btn-pwa-install-top')?.classList.add('hidden');
+          } else {
+            showToast('بۆ دامەزراندن: لە لیستی وێبگەڕەکەتدا هەڵبژاردەی Add to Home Screen یان Install App دابگرە.');
+          }
+        };
+        document.getElementById('btn-pwa-install-top')?.addEventListener('click', triggerPwaInstall);
+        document.getElementById('btn-settings-install-pwa')?.addEventListener('click', triggerPwaInstall);
+
+        // Self-Contained index.html Download Button
+        document.getElementById('btn-download-html')?.addEventListener('click', () => {
+          const fullHtml = '<!doctype html>\n' + document.documentElement.outerHTML;
+          const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'index.html';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          showToast('پەڕگەی سەربەخۆی index.html داگیرا.');
+        });
+      },
+
+      prepareReportPreview(preferGps = false) {
+        const c = (!preferGps && this.map) ? this.map.getCenter() : { lat: this.userLat, lng: this.userLng };
+        this._reportPreviewCoords = { lat: c.lat, lng: c.lng };
+        const prevEl = document.getElementById('report-coords-preview');
+        const srcEl = document.getElementById('report-loc-source');
+        if (prevEl) prevEl.textContent = `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`;
+        if (srcEl) {
+          srcEl.textContent = this.hasRealFix && preferGps
+            ? 'سەرچاوە: شوێنی ڕاستەقینەی GPS'
+            : 'سەرچاوە: ناوەندی نەخشە (پێش ناردن دڵنیابەرەوە)';
+        }
+      },
+
+      switchMapStyle(styleId) {
+        if (!this.map) return;
+        MapStyleProvider.currentStyleId = styleId;
+        this.map.setStyle(MapStyleProvider.getStyleSpec(styleId));
+
+        const labels = {
+          dark3d: '3D تاریک',
+          day: 'ڕۆژ',
+          satellite: 'سەتەلایت',
+          traffic: 'هاتووچۆ'
+        };
+        const shortEl = document.getElementById('style-short-label');
+        if (shortEl && labels[styleId]) shortEl.textContent = labels[styleId];
+
+        const sel = document.getElementById('settings-style-select');
+        if (sel) sel.value = styleId;
+
+        if (styleId === 'traffic') {
+          const chk = document.getElementById('chk-traffic-demo');
+          if (chk && !chk.checked) {
+            chk.checked = true;
+            showToast('هاتووچۆی ڕاستەوخۆ پڕۆڤایدەری نییە — دیمەنی تاقیکاری DEMO چالاک کرا.');
+          }
+        }
+      },
+
+      // =======================================================================
+      // DRIVE SIMULATOR WORKFLOW ("لێخوڕینی تاقیکاری")
+      // =======================================================================
+      async launchDriveSimulator(presetKey) {
+        document.getElementById('simulator-deck')?.classList.remove('hidden');
+        document.getElementById('nav-maneuver-banner')?.classList.remove('hidden');
+        document.getElementById('nav-mode-tag').textContent = 'SIMULATOR DEMO';
+
+        let coords = [];
+        let steps = [];
+
+        if (presetKey === 'active_route' && this.calculatedRoutes[this.selectedRouteIndex]) {
+          const r = this.calculatedRoutes[this.selectedRouteIndex];
+          coords = r.geometry.coordinates;
+          steps = r.steps;
+        } else {
+          const preset = DriveSimulator.PRESETS[presetKey] || DriveSimulator.PRESETS.erbil_120m;
+          try {
+            const routes = await RoutingProvider.calculateRoutes(
+              preset.start[1],
+              preset.start[0],
+              preset.end[1],
+              preset.end[0]
+            );
+            this.calculatedRoutes = routes;
+            this.selectedRouteIndex = 0;
+            coords = routes[0].geometry.coordinates;
+            steps = routes[0].steps;
+            this.updateRouteLayerOnMap(false);
+          } catch {
+            coords = preset.fallbackCoords;
+            this.calculatedRoutes = [{
+              index: 0,
+              distanceMeters: DriveSimulator.computeTotalDistance(coords),
+              durationSeconds: 600,
+              geometry: { type: 'LineString', coordinates: coords },
+              steps: [{
+                distance: 500,
+                duration: 60,
+                name: preset.name,
+                instruction: `لێخوڕینی تاقیکاری لەسەر ${preset.name}`,
+                location: coords[coords.length - 1]
+              }]
+            }];
+            this.updateRouteLayerOnMap(false);
+          }
+        }
+
+        this.isNavigating = true;
+        this.setFollow3D(true);
+
+        DriveSimulator.start(coords, steps, (simState) => {
+          const mm = String(Math.floor(simState.elapsedSeconds / 60)).padStart(2, '0');
+          const ss = String(Math.floor(simState.elapsedSeconds % 60)).padStart(2, '0');
+          const elLabel = document.getElementById('sim-elapsed-label');
+          if (elLabel) elLabel.textContent = `${mm}:${ss}`;
+
+          this.updateVehiclePose(
+            simState.lat,
+            simState.lng,
+            simState.heading,
+            true,
+            simState.speedKmh,
+            'SIM تاقیکاری'
+          );
+
+          if (simState.finished) {
+            VoiceAudioEngine.speak('گەیشتیتە مەبەست لە دۆخی تاقیکاریدا.');
+          }
+        });
+      },
+
+      stopDriveSimulator() {
+        DriveSimulator.stop();
+        document.getElementById('simulator-deck')?.classList.add('hidden');
+        document.getElementById('nav-mode-tag').textContent = 'OSRM ستاندارد';
+        if (!this.isNavigating) {
+          document.getElementById('nav-maneuver-banner')?.classList.add('hidden');
+        }
+        showToast('دۆخی لێخوڕینی تاقیکاری وەستێنرا.');
+      }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => App.init());
+  </script>
+</body>
+</html>
